@@ -6,6 +6,7 @@ import type { WindowState } from '../App';
 interface DockProps {
   onOpenApp: (appType: string) => void;
   onRestoreWindow: (windowId: string) => void;
+  onFocusWindow: (windowId: string) => void;
   windows: WindowState[];
 }
 
@@ -22,46 +23,50 @@ const dockApps = [
   { id: 'settings', icon: Settings, label: 'Settings', color: 'from-gray-500 to-gray-600' },
 ];
 
-function DockComponent({ onOpenApp, onRestoreWindow, windows }: DockProps) {
+import { useThemeColors } from '../hooks/useThemeColors';
+
+function DockComponent({ onOpenApp, onRestoreWindow, onFocusWindow, windows }: DockProps) {
+  const { dockBackground, blurStyle } = useThemeColors();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [hoveredMinimized, setHoveredMinimized] = useState<string | null>(null);
   const [shouldHide, setShouldHide] = useState(false);
 
-  // Get minimized windows - memoized
-  const minimizedWindows = useMemo(() => 
-    windows.filter(w => w.isMinimized), 
-    [windows]
-  );
+  // Group windows by app type
+  const windowsByApp = useMemo(() => {
+    const map: Record<string, WindowState[]> = {};
+    windows.forEach(w => {
+      const appType = w.id.split('-')[0];
+      if (!map[appType]) map[appType] = [];
+      map[appType].push(w);
+    });
+    return map;
+  }, [windows]);
 
   // Memoize intersection calculation
   const hasIntersection = useMemo(() => {
-    // Check if any window is maximized
     const hasMaximizedWindow = windows.some(w => w.isMaximized && !w.isMinimized);
-    
+
     if (hasMaximizedWindow) {
       return true;
     }
 
-    // Check if any window intersects with the dock area
-    // Dock is at left: 16px, width: ~64px, vertically centered
     const dockBounds = {
       left: 16,
-      right: 80, // 16 + 64
-      top: window.innerHeight / 2 - 300, // Approximate dock height ~600px
+      right: 80,
+      top: window.innerHeight / 2 - 300,
       bottom: window.innerHeight / 2 + 300,
     };
 
     return windows.some(w => {
       if (w.isMinimized) return false;
-      
-      const windowBounds = w.isMaximized 
+
+      const windowBounds = w.isMaximized
         ? { left: 0, right: window.innerWidth, top: 28, bottom: window.innerHeight }
-        : { 
-            left: w.position.x, 
-            right: w.position.x + w.size.width,
-            top: w.position.y,
-            bottom: w.position.y + w.size.height,
-          };
+        : {
+          left: w.position.x,
+          right: w.position.x + w.size.width,
+          top: w.position.y,
+          bottom: w.position.y + w.size.height,
+        };
 
       return !(
         windowBounds.right < dockBounds.left ||
@@ -76,82 +81,113 @@ function DockComponent({ onOpenApp, onRestoreWindow, windows }: DockProps) {
     setShouldHide(hasIntersection);
   }, [hasIntersection]);
 
+  // Handle dock icon click - macOS behavior
+  // Hold Alt/Option to force open a new window
+  // Handle dock icon click - macOS behavior
+  // Hold Alt/Option to force open a new window
+  const handleAppClick = (appId: string, e: React.MouseEvent) => {
+    const appWindows = windowsByApp[appId] || [];
+
+    // Alt/Option key - always open new window
+    if (e.altKey) {
+      onOpenApp(appId);
+      return;
+    }
+
+    if (appWindows.length === 0) {
+      // No windows open - open new window
+      onOpenApp(appId);
+    } else {
+      const minimizedWindows = appWindows.filter(w => w.isMinimized);
+      const visibleWindows = appWindows.filter(w => !w.isMinimized);
+
+      // Find the global top window to check if this app is currently focused
+      const globalTopWindow = windows.reduce((max, w) => w.zIndex > max.zIndex ? w : max, windows[0]);
+      const isAppFocused = globalTopWindow && globalTopWindow.id.startsWith(appId);
+
+      if (minimizedWindows.length > 0) {
+        // If app is focused and has minimized windows, OR if it has NO visible windows
+        // -> Restore the most recent minimized window
+        if (isAppFocused || visibleWindows.length === 0) {
+          const toRestore = minimizedWindows.reduce((max, w) => w.zIndex > max.zIndex ? w : max, minimizedWindows[0]);
+          onRestoreWindow(toRestore.id);
+          return;
+        }
+      }
+
+      // Otherwise focus the topmost visible window
+      if (visibleWindows.length > 0) {
+        const topWindow = visibleWindows.reduce((max, w) => w.zIndex > max.zIndex ? w : max, visibleWindows[0]);
+        onFocusWindow(topWindow.id);
+      }
+    }
+  };
+
   return (
     <div className="absolute left-4 top-1/2 -translate-y-1/2 z-[9998]">
-      <motion.div 
-        className="bg-gray-800/30 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-2xl"
+      <motion.div
+        className="rounded-2xl p-2 border border-white/20 shadow-2xl"
+        style={{ background: dockBackground, ...blurStyle }}
         initial={{ x: -100, opacity: 0 }}
-        animate={{ 
-          x: shouldHide ? -80 : 0, 
-          opacity: shouldHide ? 0 : 1 
+        animate={{
+          x: shouldHide ? -80 : 0,
+          opacity: shouldHide ? 0 : 1
         }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
+        transition={{ duration: 0.15, ease: "easeInOut" }}
       >
         <div className="flex flex-col gap-2">
           {/* App Icons */}
-          {dockApps.map((app, index) => (
-            <motion.button
-              key={app.id}
-              className={`relative w-12 h-12 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all`}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              onClick={() => onOpenApp(app.id)}
-              whileHover={{ scale: 1.1, x: 8 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <app.icon className="w-6 h-6" />
-              
-              {hoveredIndex === index && (
-                <motion.div
-                  className="absolute left-full ml-3 px-3 py-1.5 bg-gray-900/90 backdrop-blur-md text-white text-xs rounded-lg whitespace-nowrap border border-white/20"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0 }}
-                >
-                  {app.label}
-                </motion.div>
-              )}
-            </motion.button>
-          ))}
+          {dockApps.map((app, index) => {
+            const appWindows = windowsByApp[app.id] || [];
+            const hasWindows = appWindows.length > 0;
+            const windowCount = appWindows.length;
 
-          {/* Separator if there are minimized windows */}
-          {minimizedWindows.length > 0 && (
-            <div className="h-px bg-white/20 my-1" />
-          )}
+            return (
+              <motion.button
+                key={app.id}
+                className={`relative w-12 h-12 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all`}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                onClick={(e) => handleAppClick(app.id, e)}
+                whileHover={{ scale: 1.1, x: 8 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <app.icon className="w-6 h-6" />
 
-          {/* Minimized Windows */}
-          {minimizedWindows.map((window) => (
-            <motion.button
-              key={window.id}
-              className="relative w-12 h-12 rounded-xl bg-gray-700/50 backdrop-blur-md flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all border border-white/20"
-              onMouseEnter={() => setHoveredMinimized(window.id)}
-              onMouseLeave={() => setHoveredMinimized(null)}
-              onClick={() => onRestoreWindow(window.id)}
-              whileHover={{ scale: 1.1, x: 8 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-            >
-              <div className="text-xs text-center overflow-hidden px-1">
-                {window.title.charAt(0)}
-              </div>
-              
-              {/* Active indicator */}
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full" />
+                {/* Running indicator dot(s) */}
+                {hasWindows && (
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
+                    {/* Show up to 3 dots */}
+                    {Array.from({ length: Math.min(windowCount, 3) }).map((_, i) => {
+                      const visibleCount = appWindows.filter(w => !w.isMinimized).length;
+                      // If i < visibleCount -> Bright (Visible)
+                      // If i >= visibleCount -> Dim (Minimized)
+                      const isVisibleDot = i < visibleCount;
 
-              {hoveredMinimized === window.id && (
-                <motion.div
-                  className="absolute left-full ml-3 px-3 py-1.5 bg-gray-900/90 backdrop-blur-md text-white text-xs rounded-lg whitespace-nowrap border border-white/20"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0 }}
-                >
-                  {window.title}
-                </motion.div>
-              )}
-            </motion.button>
-          ))}
+                      return (
+                        <div
+                          key={i}
+                          className={`w-1 h-1 rounded-full ${isVisibleDot ? 'bg-cyan-400 shadow-[0_0_4px_rgba(34,211,238,0.8)]' : 'bg-white'}`}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+
+                {hoveredIndex === index && (
+                  <motion.div
+                    className="absolute left-full ml-3 px-3 py-1.5 bg-gray-900/90 backdrop-blur-md text-white text-xs rounded-lg whitespace-nowrap border border-white/20"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    {app.label}
+                    {hasWindows && ` (${windowCount})`}
+                  </motion.div>
+                )}
+              </motion.button>
+            );
+          })}
         </div>
       </motion.div>
     </div>

@@ -42,32 +42,111 @@
 }
 
 .dark {
+  /* ====================
+     DYNAMIC USER THEME VARIABLES
+     These are controlled by React/AppContext
+     ==================== */
+
+  /* User-configurable accent color - set dynamically from AppContext */
+  --accent-user: #3b82f6;
+  /* Default blue, will be overridden */
+
+  /* Blur control - set dynamically from AppContext */
+  --blur-enabled: 1;
+  /* 0 = disabled, 1 = enabled */
+  --blur-amount: 12px;
+  /* Fixed blur strength when enabled */
+
+  /* ====================
+     SEMANTIC COLOR TOKENS
+     Derived from user accent color
+     ==================== */
+
+  /* Primary color (main accent) */
+  --primary: var(--accent-user);
+  --primary-foreground: oklch(0.985 0 0);
+  /* White text on accent */
+
+  /* Secondary colors (muted variations) */
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+
+  /* Muted backgrounds */
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+
+  /* Accent (for highlights) - same as primary for now */
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+
+  /* Destructive (errors, warnings) */
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+
+  /* ====================
+     COMPONENT-SPECIFIC TOKENS
+     ==================== */
+
+  /* Backgrounds */
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.145 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
+
+  /* Borders and inputs */
   --border: oklch(0.269 0 0);
   --input: oklch(0.269 0 0);
   --ring: oklch(0.439 0 0);
+
+  /* Switch component */
+  --switch-background: rgba(255, 255, 255, 0.2);
+
+  /* ====================
+     BLUR & TRANSPARENCY
+     Opacity values that respond to blur state
+     ==================== */
+
+  /* When blur is ON: use transparent backgrounds
+     When blur is OFF: use opaque backgrounds */
+  --opacity-full: 1;
+  --opacity-window: calc(0.7 + (0.3 * (1 - var(--blur-enabled))));
+  /* 0.7 → 1.0 */
+  --opacity-sidebar: calc(0.85 + (0.15 * (1 - var(--blur-enabled))));
+  /* 0.85 → 1.0 */
+  --opacity-titlebar: calc(0.95 + (0.05 * (1 - var(--blur-enabled))));
+  /* 0.95 → 1.0 */
+  --opacity-dock: calc(0.5 + (0.5 * (1 - var(--blur-enabled))));
+  /* 0.5 → 1.0 */
+
+  /* Backdrop filter - only applied when blur is enabled */
+  --backdrop-blur: calc(var(--blur-amount) * var(--blur-enabled));
+  /* 12px or 0px */
+
+  /* ====================
+     TYPOGRAPHY & SIZING
+     ==================== */
+
   --font-weight-medium: 500;
   --font-weight-normal: 400;
+
+  /* ====================
+     CHART COLORS
+     (Modular - can be customized per theme)
+     ==================== */
+
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+
+  /* ====================
+     SIDEBAR TOKENS
+     (Specific to sidebar component)
+     ==================== */
+
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);

@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Calendar, Mail, MessageSquare, Download, Bell } from 'lucide-react';
+import { useAppContext } from './AppContext';
+import { useThemeColors } from '../hooks/useThemeColors';
 
 interface NotificationCenterProps {
   isOpen: boolean;
@@ -42,6 +44,9 @@ const notifications = [
 ];
 
 export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps) {
+  const { accentColor } = useAppContext();
+  const { notificationBackground, blurStyle } = useThemeColors();
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -57,7 +62,8 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
 
           {/* Notification Panel */}
           <motion.div
-            className="fixed right-4 top-12 w-96 bg-gray-800/70 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 overflow-hidden z-[10000]"
+            className="fixed right-4 top-12 w-96 rounded-2xl shadow-2xl border border-white/20 overflow-hidden z-[10000]"
+            style={{ background: notificationBackground, ...blurStyle }}
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -110,8 +116,11 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
             </div>
 
             {/* Footer */}
-            <div className="p-3 bg-gray-900/50 border-t border-white/5">
-              <button className="w-full text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            <div className="p-3 bg-black/40 border-t border-white/5">
+              <button
+                className="w-full text-sm hover:opacity-80 transition-opacity"
+                style={{ color: accentColor }}
+              >
                 Clear All
               </button>
             </div>

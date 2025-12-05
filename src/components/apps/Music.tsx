@@ -1,7 +1,8 @@
 import { AppTemplate } from './AppTemplate';
-import { Library, Heart, Clock, Disc, PlayCircle, User, List, Music2, Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import { Heart, Clock, Disc, PlayCircle, User, List, Music2, Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { useState } from 'react';
 import { useAppContext } from '../AppContext';
+import { useThemeColors } from '../../hooks/useThemeColors';
 
 const musicSidebar = {
   sections: [
@@ -37,11 +38,12 @@ export function Music() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSong, setCurrentSong] = useState(mockSongs[0]);
   const { accentColor } = useAppContext();
+  const { getBackgroundColor, blurStyle } = useThemeColors();
 
   const toolbar = (
     <div className="flex items-center justify-between w-full">
       <h2 className="text-white/90">Songs</h2>
-      <button 
+      <button
         className="px-3 py-1.5 rounded-lg text-white text-sm transition-all hover:opacity-90"
         style={{ backgroundColor: accentColor }}
       >
@@ -60,9 +62,8 @@ export function Music() {
             <button
               key={song.id}
               onClick={() => setCurrentSong(song)}
-              className={`w-full flex items-center gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors ${
-                currentSong.id === song.id ? 'bg-white/10' : ''
-              }`}
+              className={`w-full flex items-center gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors ${currentSong.id === song.id ? 'bg-white/10' : ''
+                }`}
             >
               <div className="w-10 h-10 rounded flex items-center justify-center" style={{ backgroundColor: accentColor }}>
                 <Music2 className="w-5 h-5 text-white" />
@@ -79,7 +80,10 @@ export function Music() {
       </div>
 
       {/* Now Playing Bar */}
-      <div className="h-20 bg-gray-900/50 backdrop-blur-md border-t border-white/10 px-4 flex items-center justify-between">
+      <div
+        className="h-20 border-t border-white/10 px-4 flex items-center justify-between"
+        style={{ background: getBackgroundColor(0.8), ...blurStyle }}
+      >
         <div className="flex items-center gap-3 flex-1">
           <div className="w-12 h-12 rounded" style={{ backgroundColor: accentColor }}>
             <Music2 className="w-6 h-6 text-white m-3" />
@@ -122,5 +126,15 @@ export function Music() {
     </div>
   );
 
-  return <AppTemplate sidebar={musicSidebar} toolbar={toolbar} content={content} />;
+  const [activeCategory, setActiveCategory] = useState('songs');
+
+  return (
+    <AppTemplate
+      sidebar={musicSidebar}
+      toolbar={toolbar}
+      content={content}
+      activeItem={activeCategory}
+      onItemClick={setActiveCategory}
+    />
+  );
 }

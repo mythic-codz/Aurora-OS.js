@@ -34,29 +34,34 @@ const mockMessages = [
 ];
 
 export function Messages() {
-  const [selectedConversation, setSelectedConversation] = useState(mockConversations[0]);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | number>(mockConversations[0].id);
   const [messageText, setMessageText] = useState('');
   const { accentColor } = useAppContext();
+
+  const selectedConversation = mockConversations.find(c => c.id === selectedConversationId) || mockConversations[0];
+
+  // Map sidebar items to include badge data if needed, or just use static definition
+  // Since AppTemplate expects a static structure for sidebar sections, we can keep the static definition
+  // or make it dynamic if we want to show unread counts in the sidebar itself (not implemented in mock yet for categories)
 
   const content = (
     <div className="flex h-full">
       {/* Conversation List */}
-      <div className="w-80 bg-gray-900/20 border-r border-white/10 overflow-y-auto">
+      <div className="w-80 border-r border-white/10 overflow-y-auto flex flex-col">
         <div className="p-3">
           <input
             type="text"
             placeholder="Search conversations..."
-            className="w-full px-3 py-2 bg-gray-900/50 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 text-sm"
+            className="w-full px-3 py-2 bg-black/20 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 text-sm"
           />
         </div>
-        <div className="space-y-1 px-2">
+        <div className="space-y-1 px-2 flex-1">
           {mockConversations.map((conversation) => (
             <button
               key={conversation.id}
-              onClick={() => setSelectedConversation(conversation)}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                selectedConversation.id === conversation.id ? 'bg-white/10' : 'hover:bg-white/5'
-              }`}
+              onClick={() => setSelectedConversationId(conversation.id)}
+              className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${selectedConversationId === conversation.id ? 'bg-white/10' : 'hover:bg-white/5'
+                }`}
             >
               <div className={`w-12 h-12 rounded-full ${conversation.avatar} flex items-center justify-center text-white flex-shrink-0`}>
                 {conversation.name[0]}
@@ -69,7 +74,7 @@ export function Messages() {
                 <div className="flex items-center justify-between">
                   <span className="text-white/60 text-xs truncate">{conversation.lastMessage}</span>
                   {conversation.unread > 0 && (
-                    <span 
+                    <span
                       className="px-1.5 py-0.5 rounded-full text-xs text-white ml-2 flex-shrink-0"
                       style={{ backgroundColor: accentColor }}
                     >
@@ -86,7 +91,7 @@ export function Messages() {
       {/* Chat Area */}
       <div className="flex-1 flex flex-col">
         {/* Chat Header */}
-        <div className="h-14 bg-gray-900/30 backdrop-blur-md border-b border-white/10 flex items-center px-4">
+        <div className="h-14 border-b border-white/10 flex items-center px-4">
           <div className={`w-8 h-8 rounded-full ${selectedConversation.avatar} flex items-center justify-center text-white text-sm mr-3`}>
             {selectedConversation.name[0]}
           </div>
@@ -101,11 +106,10 @@ export function Messages() {
               className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-xs px-4 py-2 rounded-2xl ${
-                  message.sender === 'me'
-                    ? 'text-white rounded-br-sm'
-                    : 'bg-gray-700/50 text-white rounded-bl-sm'
-                }`}
+                className={`max-w-xs px-4 py-2 rounded-2xl ${message.sender === 'me'
+                  ? 'text-white rounded-br-sm'
+                  : 'bg-gray-700/50 text-white rounded-bl-sm'
+                  }`}
                 style={message.sender === 'me' ? { backgroundColor: accentColor } : {}}
               >
                 <p className="text-sm">{message.text}</p>
@@ -116,7 +120,7 @@ export function Messages() {
         </div>
 
         {/* Message Input */}
-        <div className="h-16 bg-gray-900/30 backdrop-blur-md border-t border-white/10 flex items-center px-4 gap-2">
+        <div className="h-16 border-t border-white/10 flex items-center px-4 gap-2">
           <input
             type="text"
             value={messageText}
@@ -124,7 +128,7 @@ export function Messages() {
             placeholder="Type a message..."
             className="flex-1 px-4 py-2 bg-gray-900/50 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/20"
           />
-          <button 
+          <button
             className="w-10 h-10 rounded-lg flex items-center justify-center text-white transition-all hover:opacity-90"
             style={{ backgroundColor: accentColor }}
           >
@@ -135,5 +139,15 @@ export function Messages() {
     </div>
   );
 
-  return <AppTemplate sidebar={messagesSidebar} content={content} hasSidebar={true} />;
+  const [activeCategory, setActiveCategory] = useState('all');
+
+  return (
+    <AppTemplate
+      sidebar={messagesSidebar}
+      content={content}
+      hasSidebar={true}
+      activeItem={activeCategory}
+      onItemClick={setActiveCategory}
+    />
+  );
 }

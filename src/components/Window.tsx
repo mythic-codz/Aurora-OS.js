@@ -14,6 +14,8 @@ interface WindowProps {
   isFocused: boolean;
 }
 
+import { useThemeColors } from '../hooks/useThemeColors';
+
 function WindowComponent({
   window,
   onClose,
@@ -26,6 +28,7 @@ function WindowComponent({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
+  const { titleBarBackground } = useThemeColors();
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.window-controls')) return;
@@ -74,7 +77,7 @@ function WindowComponent({
   return (
     <motion.div
       ref={windowRef}
-      className={`absolute bg-gray-800/70 backdrop-blur-md rounded-xl shadow-2xl overflow-hidden border border-white/20 ${isDragging ? '' : 'transition-all'
+      className={`absolute rounded-xl shadow-2xl overflow-hidden border border-white/20 ${isDragging ? '' : 'transition-all'
         } ${!isFocused ? 'brightness-75 saturate-50' : ''
         }`}
       style={{
@@ -83,16 +86,20 @@ function WindowComponent({
         width: size.width,
         height: size.height,
         zIndex: window.zIndex,
+        // If not focused, force opaque background to disable transparency
+        background: !isFocused ? '#171717' : undefined,
       }}
-      initial={{ scale: 0.9, opacity: 0 }}
+      initial={{ scale: 0.95, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0.9, opacity: 0 }}
+      exit={{ scale: 0.95, opacity: 0 }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
       onMouseDown={onFocus}
     >
 
       {/* Title Bar */}
       <div
-        className="h-11 bg-gray-900/60 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 cursor-move select-none"
+        className="h-11 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 cursor-move select-none"
+        style={{ background: titleBarBackground }}
         onMouseDown={handleMouseDown}
       >
         <div className="flex items-center gap-2 window-controls">
@@ -120,7 +127,7 @@ function WindowComponent({
       </div>
 
       {/* Content */}
-      <div className="h-[calc(100%-44px)] overflow-auto bg-gray-800/50 backdrop-blur-md">
+      <div className="h-[calc(100%-44px)] overflow-auto">
         {window.content}
       </div>
     </motion.div>

@@ -1,6 +1,8 @@
 import { FolderOpen } from 'lucide-react';
 import { useState, useRef, useEffect, memo } from 'react';
 import type { DesktopIcon } from '../App';
+import { useAppContext } from './AppContext';
+import { lightenColor } from '../utils/colors';
 
 interface DesktopProps {
   onDoubleClick: () => void;
@@ -10,6 +12,7 @@ interface DesktopProps {
 }
 
 function DesktopComponent({ onDoubleClick, icons, onUpdateIconPosition, onIconDoubleClick }: DesktopProps) {
+  const { accentColor } = useAppContext();
   const [draggingIcon, setDraggingIcon] = useState<string | null>(null);
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -62,7 +65,7 @@ function DesktopComponent({ onDoubleClick, icons, onUpdateIconPosition, onIconDo
   };
 
   return (
-    <div 
+    <div
       className="absolute inset-0 w-full h-full"
       onClick={handleDesktopClick}
       onDoubleClick={onDoubleClick}
@@ -75,7 +78,7 @@ function DesktopComponent({ onDoubleClick, icons, onUpdateIconPosition, onIconDo
         <svg width="100%" height="100%">
           <defs>
             <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-              <path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" strokeWidth="0.5"/>
+              <path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" strokeWidth="0.5" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
@@ -86,9 +89,8 @@ function DesktopComponent({ onDoubleClick, icons, onUpdateIconPosition, onIconDo
       {icons.map((icon) => (
         <div
           key={icon.id}
-          className={`absolute flex flex-col items-center gap-1 p-3 rounded-lg cursor-pointer select-none transition-colors ${
-            selectedIcon === icon.id ? 'bg-white/10 backdrop-blur-sm' : 'hover:bg-white/5'
-          }`}
+          className={`absolute flex flex-col items-center gap-1 p-3 rounded-lg cursor-pointer select-none transition-colors ${selectedIcon === icon.id ? 'bg-white/10 backdrop-blur-sm' : 'hover:bg-white/5'
+            }`}
           style={{
             left: icon.position.x,
             top: icon.position.y,
@@ -102,12 +104,12 @@ function DesktopComponent({ onDoubleClick, icons, onUpdateIconPosition, onIconDo
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M8 14C8 11.7909 9.79086 10 12 10H24L28 16H52C54.2091 16 56 17.7909 56 20V50C56 52.2091 54.2091 54 52 54H12C9.79086 54 8 52.2091 8 50V14Z"
-                fill="url(#folder-gradient)"
+                fill={`url(#folder-gradient-${icon.id})`}
               />
               <defs>
-                <linearGradient id="folder-gradient" x1="32" y1="10" x2="32" y2="54" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#60a5fa" />
-                  <stop offset="1" stopColor="#3b82f6" />
+                <linearGradient id={`folder-gradient-${icon.id}`} x1="32" y1="10" x2="32" y2="54" gradientUnits="userSpaceOnUse">
+                  <stop stopColor={lightenColor(accentColor, 20)} />
+                  <stop offset="1" stopColor={accentColor} />
                 </linearGradient>
               </defs>
             </svg>

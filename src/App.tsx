@@ -11,6 +11,7 @@ import { Music } from './components/apps/Music';
 import { Messages } from './components/apps/Messages';
 import { Browser } from './components/apps/Browser';
 import { Terminal } from './components/apps/Terminal';
+import { PlaceholderApp } from './components/apps/PlaceholderApp';
 import { AppProvider } from './components/AppContext';
 import { FileSystemProvider } from './components/FileSystemContext';
 import { Toaster } from './components/ui/sonner';
@@ -79,7 +80,7 @@ export default function App() {
         break;
       default:
         title = type.charAt(0).toUpperCase() + type.slice(1);
-        content = <div className="p-8 text-white/60">Coming soon...</div>;
+        content = <PlaceholderApp title={title} />;
     }
 
     setWindows(prevWindows => {
@@ -104,13 +105,13 @@ export default function App() {
   }, []);
 
   const minimizeWindow = useCallback((id: string) => {
-    setWindows(prevWindows => prevWindows.map(w => 
+    setWindows(prevWindows => prevWindows.map(w =>
       w.id === id ? { ...w, isMinimized: true } : w
     ));
   }, []);
 
   const maximizeWindow = useCallback((id: string) => {
-    setWindows(prevWindows => prevWindows.map(w => 
+    setWindows(prevWindows => prevWindows.map(w =>
       w.id === id ? { ...w, isMaximized: !w.isMaximized } : w
     ));
   }, []);
@@ -118,7 +119,7 @@ export default function App() {
   const focusWindow = useCallback((id: string) => {
     setTopZIndex(prevZIndex => {
       const newZIndex = prevZIndex + 1;
-      setWindows(prevWindows => prevWindows.map(w => 
+      setWindows(prevWindows => prevWindows.map(w =>
         w.id === id ? { ...w, zIndex: newZIndex, isMinimized: false } : w
       ));
       return newZIndex;
@@ -126,19 +127,15 @@ export default function App() {
   }, []);
 
   const updateWindowPosition = useCallback((id: string, position: { x: number; y: number }) => {
-    setWindows(prevWindows => prevWindows.map(w => 
+    setWindows(prevWindows => prevWindows.map(w =>
       w.id === id ? { ...w, position } : w
     ));
   }, []);
 
-  const updateWindowSize = useCallback((id: string, size: { width: number; height: number }) => {
-    setWindows(prevWindows => prevWindows.map(w => 
-      w.id === id ? { ...w, size } : w
-    ));
-  }, []);
+
 
   const updateIconPosition = useCallback((id: string, position: { x: number; y: number }) => {
-    setDesktopIcons(prevIcons => prevIcons.map(icon => 
+    setDesktopIcons(prevIcons => prevIcons.map(icon =>
       icon.id === id ? { ...icon, position } : icon
     ));
   }, []);
@@ -157,27 +154,35 @@ export default function App() {
     return windows.reduce((max, w) => w.zIndex > max.zIndex ? w : max, windows[0]).id;
   }, [windows]);
 
+  // Extract app type from focused window ID (format: "apptype-timestamp")
+  const focusedAppType = useMemo(() => {
+    if (!focusedWindowId) return null;
+    return focusedWindowId.split('-')[0];
+  }, [focusedWindowId]);
+
   return (
     <AppProvider>
       <FileSystemProvider>
-        <div className="h-screen w-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative">
-          <Desktop 
-            onDoubleClick={() => {}}
+        <div className="dark h-screen w-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative">
+          <Desktop
+            onDoubleClick={() => { }}
             icons={desktopIcons}
             onUpdateIconPosition={updateIconPosition}
             onIconDoubleClick={handleIconDoubleClick}
           />
-          
-          <MenuBar 
+
+          <MenuBar
             onNotificationsClick={toggleNotifications}
+            focusedApp={focusedAppType}
           />
-          
-          <Dock 
-            onOpenApp={openWindow} 
+
+          <Dock
+            onOpenApp={openWindow}
             onRestoreWindow={focusWindow}
-            windows={windows} 
+            onFocusWindow={focusWindow}
+            windows={windows}
           />
-          
+
           {windows.map(window => (
             !window.isMinimized && (
               <Window
@@ -188,17 +193,17 @@ export default function App() {
                 onMaximize={() => maximizeWindow(window.id)}
                 onFocus={() => focusWindow(window.id)}
                 onUpdatePosition={(pos) => updateWindowPosition(window.id, pos)}
-                onUpdateSize={(size) => updateWindowSize(window.id, size)}
+
                 isFocused={window.id === focusedWindowId}
               />
             )
           ))}
-          
-          <NotificationCenter 
+
+          <NotificationCenter
             isOpen={showNotifications}
             onClose={() => setShowNotifications(false)}
           />
-          
+
           <Toaster />
         </div>
       </FileSystemProvider>

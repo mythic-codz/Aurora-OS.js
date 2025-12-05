@@ -1,5 +1,6 @@
 import { AppTemplate } from './AppTemplate';
 import { Heart, Folder, Clock, MapPin, User, Image, Grid3x3, List } from 'lucide-react';
+import { useState } from 'react';
 
 const photosSidebar = {
   sections: [
@@ -57,5 +58,15 @@ export function Photos() {
     </div>
   );
 
-  return <AppTemplate sidebar={photosSidebar} toolbar={toolbar} content={content} />;
+  const [activeCategory, setActiveCategory] = useState('all');
+
+  return (
+    <AppTemplate
+      sidebar={photosSidebar}
+      toolbar={toolbar}
+      content={content}
+      activeItem={activeCategory}
+      onItemClick={setActiveCategory}
+    />
+  );
 }

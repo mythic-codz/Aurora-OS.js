@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useFileSystem } from '../FileSystemContext';
+import { useAppContext } from '../AppContext';
+import { AppTemplate } from './AppTemplate';
 
 interface CommandHistory {
   command: string;
@@ -8,16 +10,15 @@ interface CommandHistory {
 }
 
 export function Terminal() {
-  const [history, setHistory] = useState<CommandHistory[]>([
-    { command: '', output: ['Welcome to Terminal', 'Type "help" for available commands', ''] }
-  ]);
-  const [currentInput, setCurrentInput] = useState('');
+  const { accentColor } = useAppContext();
+  const [history, setHistory] = useState<CommandHistory[]>([]);
+  const [input, setInput] = useState('');
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
-  
-  const { currentPath, setCurrentPath, listDirectory, getNodeAtPath, createFile, createDirectory, deleteNode, readFile, writeFile } = useFileSystem();
+
+  const { currentPath, setCurrentPath, listDirectory, getNodeAtPath, createFile, createDirectory, deleteNode, readFile } = useFileSystem();
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -29,11 +30,11 @@ export function Terminal() {
     if (path.startsWith('/')) return path;
     if (path === '~') return '/Users/guest';
     if (path.startsWith('~/')) return '/Users/guest' + path.slice(1);
-    
+
     // Handle relative paths
     const parts = currentPath.split('/').filter(p => p);
     const pathParts = path.split('/');
-    
+
     for (const part of pathParts) {
       if (part === '..') {
         parts.pop();
@@ -41,7 +42,7 @@ export function Terminal() {
         parts.push(part);
       }
     }
-    
+
     return '/' + parts.join('/');
   };
 
@@ -81,12 +82,12 @@ export function Terminal() {
         const lsPath = args[0] ? resolvePath(args[0]) : currentPath;
         const contents = listDirectory(lsPath);
         if (contents) {
-          output = contents.length > 0 
+          output = contents.length > 0
             ? contents.map(node => {
-                const icon = node.type === 'directory' ? '📁' : '📄';
-                const name = node.type === 'directory' ? node.name + '/' : node.name;
-                return `${icon} ${name}`;
-              })
+              const icon = node.type === 'directory' ? '📁' : '📄';
+              const name = node.type === 'directory' ? node.name + '/' : node.name;
+              return `${icon} ${name}`;
+            })
             : ['(empty directory)'];
         } else {
           output = [`ls: ${lsPath}: No such file or directory`];
@@ -183,7 +184,7 @@ export function Terminal() {
 
       case 'clear':
         setHistory([{ command: '', output: [] }]);
-        setCurrentInput('');
+        setInput('');
         return;
 
       default:
@@ -198,14 +199,14 @@ export function Terminal() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      executeCommand(currentInput);
-      setCurrentInput('');
+      executeCommand(input);
+      setInput('');
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (commandHistory.length > 0) {
         const newIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
         setHistoryIndex(newIndex);
-        setCurrentInput(commandHistory[newIndex]);
+        setInput(commandHistory[newIndex]);
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -213,10 +214,10 @@ export function Terminal() {
         const newIndex = historyIndex + 1;
         if (newIndex >= commandHistory.length) {
           setHistoryIndex(-1);
-          setCurrentInput('');
+          setInput('');
         } else {
           setHistoryIndex(newIndex);
-          setCurrentInput(commandHistory[newIndex]);
+          setInput(commandHistory[newIndex]);
         }
       }
     } else if (e.key === 'Tab') {
@@ -226,14 +227,26 @@ export function Terminal() {
   };
 
   const getPrompt = () => {
-    const pathParts = currentPath.split('/').filter(p => p);
-    const shortPath = pathParts.length > 0 ? pathParts[pathParts.length - 1] : '/';
-    return `guest@desktop:~/${shortPath}$`;
+    const pathArray = currentPath.split('/');
+    const shortPath = pathArray.length > 2
+      ? pathArray[pathArray.length - 1]
+      : pathArray.filter(p => p).join('/');
+
+    return (
+      <span>
+        <span style={{ color: accentColor }}>guest</span>
+        <span style={{ color: '#94a3b8' }}>@</span>
+        <span style={{ color: accentColor }}>desktop</span>
+        <span style={{ color: '#94a3b8' }}>:~/</span>
+        <span style={{ color: '#60a5fa' }}>{shortPath}</span>
+        <span style={{ color: accentColor }}>$</span>
+      </span>
+    );
   };
 
-  return (
-    <div 
-      className="h-full bg-gray-900/95 backdrop-blur-md p-4 font-mono text-sm overflow-y-auto"
+  const content = (
+    <div
+      className="h-full p-4 font-mono text-sm overflow-y-auto"
       ref={terminalRef}
       onClick={() => inputRef.current?.focus()}
     >
@@ -247,8 +260,8 @@ export function Terminal() {
               </div>
             )}
             {entry.output.map((line, lineIndex) => (
-              <div 
-                key={lineIndex} 
+              <div
+                key={lineIndex}
                 className={entry.error ? 'text-red-400' : 'text-white/80'}
               >
                 {line}
@@ -256,15 +269,15 @@ export function Terminal() {
             ))}
           </div>
         ))}
-        
+
         {/* Current Input Line */}
         <div className="flex gap-2">
           <span className="text-green-400">{getPrompt()}</span>
           <input
             ref={inputRef}
             type="text"
-            value={currentInput}
-            onChange={(e) => setCurrentInput(e.target.value)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             className="flex-1 bg-transparent text-white outline-none caret-white"
             autoFocus
@@ -274,4 +287,6 @@ export function Terminal() {
       </div>
     </div>
   );
+
+  return <AppTemplate content={content} hasSidebar={false} contentClassName="overflow-hidden" />;
 }
