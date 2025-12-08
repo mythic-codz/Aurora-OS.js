@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -66,47 +66,49 @@ export function FileManager({ initialPath }: { initialPath?: string }) {
   }, [currentPath, listDirectory]);
 
   // Navigate to a directory
-  const navigateTo = (path: string) => {
+  const navigateTo = useCallback((path: string) => {
     // Add to history
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push(path);
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
+    setHistory(prev => {
+      const newHistory = prev.slice(0, historyIndex + 1);
+      newHistory.push(path);
+      return newHistory;
+    });
+    setHistoryIndex(prev => prev + 1);
     setCurrentPath(path);
-  };
+  }, [historyIndex]);
 
   // Handle item double-click
-  const handleItemDoubleClick = (item: FileNode) => {
+  const handleItemDoubleClick = useCallback((item: FileNode) => {
     if (item.type === 'directory') {
       const newPath = currentPath === '/' ? `/${item.name}` : `${currentPath}/${item.name}`;
       navigateTo(newPath);
     }
-  };
+  }, [currentPath, navigateTo]);
 
   // Go back in history
-  const goBack = () => {
+  const goBack = useCallback(() => {
     if (historyIndex > 0) {
-      setHistoryIndex(historyIndex - 1);
+      setHistoryIndex(prev => prev - 1);
       setCurrentPath(history[historyIndex - 1]);
     }
-  };
+  }, [history, historyIndex]);
 
   // Go forward in history
-  const goForward = () => {
+  const goForward = useCallback(() => {
     if (historyIndex < history.length - 1) {
-      setHistoryIndex(historyIndex + 1);
+      setHistoryIndex(prev => prev + 1);
       setCurrentPath(history[historyIndex + 1]);
     }
-  };
+  }, [history, historyIndex]);
 
   // Get current directory name
-  const getCurrentDirName = () => {
+  const getCurrentDirName = useCallback(() => {
     if (currentPath === '/') return '/';
     const parts = currentPath.split('/');
     return parts[parts.length - 1] || '/';
-  };
+  }, [currentPath]);
 
-  const handleDragStart = (e: React.DragEvent, item: FileNode) => {
+  const handleDragStart = useCallback((e: React.DragEvent, item: FileNode) => {
     console.log('Drag started:', item.id);
     e.dataTransfer.setData('application/json', JSON.stringify({
       id: item.id,
@@ -114,9 +116,9 @@ export function FileManager({ initialPath }: { initialPath?: string }) {
       type: item.type
     }));
     e.dataTransfer.effectAllowed = 'move';
-  };
+  }, []);
 
-  const handleDragOver = (e: React.DragEvent, item: FileNode) => {
+  const handleDragOver = useCallback((e: React.DragEvent, item: FileNode) => {
     e.preventDefault(); // allow drop
     if (item.type === 'directory') {
       e.dataTransfer.dropEffect = 'move';
@@ -125,14 +127,14 @@ export function FileManager({ initialPath }: { initialPath?: string }) {
       e.dataTransfer.dropEffect = 'none';
       setDragTargetId(null);
     }
-  };
+  }, []);
 
-  const handleDragLeave = (e: React.DragEvent) => {
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragTargetId(null);
-  };
+  }, []);
 
-  const handleDrop = (e: React.DragEvent, targetItem: FileNode) => {
+  const handleDrop = useCallback((e: React.DragEvent, targetItem: FileNode) => {
     e.preventDefault();
     setDragTargetId(null);
 
@@ -166,15 +168,15 @@ export function FileManager({ initialPath }: { initialPath?: string }) {
       console.error('Failed to parse drag data', err);
       toast.error('Move failed: Invalid data');
     }
-  };
+  }, [currentPath, moveNodeById]);
 
   // Sidebar Drop Logic
-  const handleSidebarDragOver = (e: React.DragEvent) => {
+  const handleSidebarDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-  };
+  }, []);
 
-  const handleSidebarDrop = (e: React.DragEvent, targetPath: string) => {
+  const handleSidebarDrop = useCallback((e: React.DragEvent, targetPath: string) => {
     e.preventDefault();
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
@@ -190,13 +192,13 @@ export function FileManager({ initialPath }: { initialPath?: string }) {
       console.error('Failed to drop on sidebar', err);
       toast.error('Failed to process drop');
     }
-  };
+  }, [moveNodeById]);
 
   // Helper to create sidebar action props
-  const sidebarDropProps = (path: string) => ({
+  const sidebarDropProps = useCallback((path: string) => ({
     onDragOver: handleSidebarDragOver,
     onDrop: (e: React.DragEvent) => handleSidebarDrop(e, path)
-  });
+  }), [handleSidebarDragOver, handleSidebarDrop]);
 
   // Sidebar configuration
   const fileManagerSidebar = useMemo(() => ({
@@ -287,7 +289,7 @@ export function FileManager({ initialPath }: { initialPath?: string }) {
         ]
       },
     ]
-  }), [homePath, navigateTo, moveNodeById]);
+  }), [homePath, navigateTo, sidebarDropProps]);
 
   const toolbar = (
     <div className="flex items-center justify-between w-full">
@@ -339,19 +341,19 @@ export function FileManager({ initialPath }: { initialPath?: string }) {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   // Handle drop on the background (current directory)
-  const handleContainerDragOver = (e: React.DragEvent) => {
+  const handleContainerDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     if (!isDraggingOver) setIsDraggingOver(true);
-  };
+  }, [isDraggingOver]);
 
-  const handleContainerDragLeave = (e: React.DragEvent) => {
+  const handleContainerDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     if (e.currentTarget.contains(e.relatedTarget as Node)) return;
     setIsDraggingOver(false);
-  };
+  }, []);
 
-  const handleContainerDrop = (e: React.DragEvent) => {
+  const handleContainerDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDraggingOver(false);
     try {
@@ -362,7 +364,7 @@ export function FileManager({ initialPath }: { initialPath?: string }) {
     } catch (err) {
       console.error('Failed to handle container drop', err);
     }
-  };
+  }, [moveNodeById, currentPath]);
 
   const content = (
     <div

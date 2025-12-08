@@ -301,6 +301,7 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
     });
 
     return true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileSystem, resolvePath, getNodeAtPath, findNodeAndParent]);
 
   const createFile = useCallback((path: string, name: string, content: string = ''): boolean => {
