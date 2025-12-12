@@ -2,20 +2,25 @@ import { Howl } from 'howler';
 import { STORAGE_KEYS } from '../utils/memory';
 
 // Sound constants
+// We must prepend the base URL (which is ./ in production) to ensure sounds load correctly
+// on GitHub Pages or subdirectories.
+const BASE = import.meta.env.BASE_URL;
+const soundPath = (path: string) => `${BASE}${path.startsWith('/') ? path.slice(1) : path}`;
+
 const SOUNDS = {
     // System
-    success: '/sounds/warning.wav',
-    warning: '/sounds/warning.wav',
-    error: '/sounds/error.wav',
+    success: soundPath('sounds/warning.wav'),
+    warning: soundPath('sounds/warning.wav'),
+    error: soundPath('sounds/error.wav'),
 
     // UI
-    folder: '/sounds/folder.wav',
-    'window-open': '/sounds/window-open.wav',
-    'window-close': '/sounds/window-close.wav',
+    folder: soundPath('sounds/folder.wav'),
+    'window-open': soundPath('sounds/window-open.wav'),
+    'window-close': soundPath('sounds/window-close.wav'),
 
     // Feedback
-    click: '/sounds/click.wav',
-    hover: '/sounds/hover.wav',
+    click: soundPath('sounds/click.wav'),
+    hover: soundPath('sounds/hover.wav'),
 };
 
 type SoundType = keyof typeof SOUNDS;
