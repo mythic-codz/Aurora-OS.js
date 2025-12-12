@@ -1,5 +1,24 @@
 # Version History
 
+## v0.7.0
+- **DEV Center**: New specialized application for developers.
+    - **Dashboard**: Central hub for developer tools.
+    - **UI & Sounds**: Manual triggers for system notifications and sound events (click, hover, etc.).
+    - **Storage Inspector**: View and manage Soft (Preferences) vs Hard (Filesystem) memory, with key deletion.
+    - **File System Debugger**: View raw filesystem JSON and reset functionality.
+    - **Integration**: "Developer Mode" toggle in System Settings > About.
+- **Audio Architecture**:
+    - **SoundManager**: Refactored core audio engine with volume grouping (Master, System, UI, Feedback).
+    - **Audio Applet**: New native-style popup in MenuBar for granular volume control.
+    - **Persistence**: Audio settings are now saved to localStorage.
+- **Dock & Trash**:
+    - **Trash App**: Fully functional Trash with dynamic icon (empty/full) in Dock and Finder.
+    - **Dock Enhancements**: Added horizontal separator before utility apps (Terminal, Trash).
+    - **Animations**: Snappier hover effects for Dock items.
+- **System**:
+    - **Refactoring**: Unified "Applet" architecture (Notification Center & Audio) using `shadcn/ui` Popover.
+    - **Testing**: Enhanced test suite to cover new components and logic.
+
 ## v0.6.2-patch5
 - **Messages Redesign**: Completely revamped the Messages app with a sleek, borderless list view, adaptive layout (Finder-style), and colored chat bubbles.
 - **Auto-scroll**: Implemented smart auto-scroll for Messages that targets only the chat container, preventing app-wide layout shifts.

@@ -1,4 +1,4 @@
-# Aurora OS.js [![Version](https://img.shields.io/badge/Version-v0.6.2--patch4-blue)](https://github.com/mental-os/Aurora-OS.js) [![GitHub Pages](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml) [![Dependabot](https://github.com/mental-os/Aurora-OS.js/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/dependabot/dependabot-updates) [![Build](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml)
+# Aurora OS.js [![Version](https://img.shields.io/badge/Version-v0.7.0-blue)](https://github.com/mental-os/Aurora-OS.js) [![GitHub Pages](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml) [![Dependabot](https://github.com/mental-os/Aurora-OS.js/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/dependabot/dependabot-updates) [![Build](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml)
 
 A modern, web-based desktop operating system interface built with React, Tailwind CSS, and Radix UI.
 
@@ -55,11 +55,24 @@ npm test
 
 ## Release Notes
 
-## v0.6.2-patch5
-- **Messages Redesign**: Completely revamped the Messages app with a sleek, borderless list view, adaptive layout (Finder-style), and colored chat bubbles.
-- **Auto-scroll**: Implemented smart auto-scroll for Messages that targets only the chat container, preventing app-wide layout shifts.
-- **Code Standardization**: Refactored core apps (`Music`, `Photos`, `Browser`, `Finder`) and UI components (`Window`, `Dock`, `MenuBar`) to use consistent `cn` utility for styling and standardized imports.
-- **Responsiveness**: Fixed overflow and cropping issues in Messages and Music apps, ensuring perfect scaling down to compact mobile sizes.
+## v0.7.0
+- **DEV Center**: New specialized application for developers.
+    - **Dashboard**: Central hub for developer tools.
+    - **UI & Sounds**: Manual triggers for system notifications and sound events (click, hover, etc.).
+    - **Storage Inspector**: View and manage Soft (Preferences) vs Hard (Filesystem) memory, with key deletion.
+    - **File System Debugger**: View raw filesystem JSON and reset functionality.
+    - **Integration**: "Developer Mode" toggle in System Settings > About.
+- **Audio Architecture**:
+    - **SoundManager**: Refactored core audio engine with volume grouping (Master, System, UI, Feedback).
+    - **Audio Applet**: New native-style popup in MenuBar for granular volume control.
+    - **Persistence**: Audio settings are now saved to localStorage.
+- **Dock & Trash**:
+    - **Trash App**: Fully functional Trash with dynamic icon (empty/full) in Dock and Finder.
+    - **Dock Enhancements**: Added horizontal separator before utility apps (Terminal, Trash).
+    - **Animations**: Snappier hover effects for Dock items.
+- **System**:
+    - **Refactoring**: Unified "Applet" architecture (Notification Center & Audio) using `shadcn/ui` Popover.
+    - **Testing**: Enhanced test suite to cover new components and logic.
 
 [View full version history](HISTORY.md)
 

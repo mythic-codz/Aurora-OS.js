@@ -1,11 +1,14 @@
 import { useState, useEffect, memo } from 'react';
-import { Apple, Wifi, Battery, Volume2, Bell, } from 'lucide-react';
+import { Apple, Wifi, Battery } from 'lucide-react';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { cn } from './ui/utils';
+import { useAppContext } from './AppContext';
+import { AudioApplet } from './AudioApplet';
+import { NotificationCenter } from './NotificationCenter';
 
 interface MenuBarProps {
-  onNotificationsClick: () => void;
   focusedApp?: string | null;
+  onOpenApp?: (appId: string) => void;
 }
 
 // App-specific menu configurations
@@ -25,8 +28,9 @@ const appMenus: Record<string, { name: string; menus: string[] }> = {
 
 const defaultMenus = { name: 'Finder', menus: ['File', 'Edit', 'View', 'Go', 'Window', 'Help'] };
 
-function MenuBarComponent({ onNotificationsClick, focusedApp }: MenuBarProps) {
+function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
   const { menuBarBackground, blurStyle } = useThemeColors();
+  const { devMode } = useAppContext();
   const [currentTime, setCurrentTime] = useState(() =>
     new Date().toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -66,6 +70,11 @@ function MenuBarComponent({ onNotificationsClick, focusedApp }: MenuBarProps) {
   // Get the menu config for the focused app
   const appConfig = focusedApp ? appMenus[focusedApp] || defaultMenus : defaultMenus;
 
+  // Inject "DEV Center" if devMode is on and app is Finder (or default)
+  const menus = (appConfig.name === 'Finder' && devMode)
+    ? [...appConfig.menus, 'DEV Center']
+    : appConfig.menus;
+
   return (
     <div
       className={cn("absolute top-0 left-0 right-0 h-7 border-b border-white/10 flex items-center justify-between px-4 z-[9999]")}
@@ -78,8 +87,16 @@ function MenuBarComponent({ onNotificationsClick, focusedApp }: MenuBarProps) {
           <button className="font-semibold text-white hover:text-white/80 transition-colors">
             {appConfig.name}
           </button>
-          {appConfig.menus.map((menu) => (
-            <button key={menu} className="hover:text-white transition-colors">
+          {menus.map((menu) => (
+            <button
+              key={menu}
+              className="hover:text-white transition-colors"
+              onClick={() => {
+                if (menu === 'DEV Center') {
+                  onOpenApp?.('dev-center');
+                }
+              }}
+            >
               {menu}
             </button>
           ))}
@@ -94,15 +111,9 @@ function MenuBarComponent({ onNotificationsClick, focusedApp }: MenuBarProps) {
         <button className="text-white/70 hover:text-white transition-colors">
           <Wifi className="w-4 h-4" />
         </button>
-        <button className="text-white/70 hover:text-white transition-colors">
-          <Volume2 className="w-4 h-4" />
-        </button>
-        <button
-          className="text-white/70 hover:text-white transition-colors"
-          onClick={onNotificationsClick}
-        >
-          <Bell className="w-4 h-4" />
-        </button>
+        <AudioApplet />
+        <NotificationCenter />
+
         <div className="text-white/80 text-xs flex items-center gap-2">
           <span>{currentDate}</span>
           <span>{currentTime}</span>
