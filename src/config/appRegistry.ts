@@ -1,16 +1,19 @@
 import { ComponentType } from 'react';
 import { LucideIcon, FolderOpen, Settings, Mail, Calendar, Image, Music, Video, Terminal, Globe, MessageSquare, FileText, Code, ShoppingBag } from 'lucide-react';
-import { FileManager } from '../components/FileManager';
-import { Settings as SettingsApp } from '../components/Settings';
-import { Photos } from '../components/apps/Photos';
-import { Music as MusicApp } from '../components/apps/Music';
-import { Messages } from '../components/apps/Messages';
-import { Browser } from '../components/apps/Browser';
-import { Terminal as TerminalApp } from '../components/apps/Terminal';
-import { DevCenter } from '../components/apps/DevCenter';
-import { Notepad } from '../components/apps/Notepad';
+import { FileManager, finderMenuConfig } from '../components/FileManager';
+import { Settings as SettingsApp, settingsMenuConfig } from '../components/Settings';
+import { Photos, photosMenuConfig } from '../components/apps/Photos';
+import { Music as MusicApp, musicMenuConfig } from '../components/apps/Music';
+import { Messages, messagesMenuConfig } from '../components/apps/Messages';
+import { Browser, browserMenuConfig } from '../components/apps/Browser';
+import { Terminal as TerminalApp, terminalMenuConfig } from '../components/apps/Terminal';
+import { DevCenter, devCenterMenuConfig } from '../components/apps/DevCenter';
+import { Notepad, notepadMenuConfig } from '../components/apps/Notepad';
 import { PlaceholderApp } from '../components/apps/PlaceholderApp';
-import { AppStore as AppStoreComponent } from '../components/apps/AppStore';
+import { AppStore as AppStoreComponent, appStoreMenuConfig } from '../components/apps/AppStore';
+import { mailMenuConfig, calendarMenuConfig, videosMenuConfig } from './appMenuConfigs';
+
+import { AppMenuConfig } from '../types';
 
 export interface AppMetadata {
     id: string;
@@ -23,6 +26,7 @@ export interface AppMetadata {
     isCore: boolean;             // Cannot be uninstalled
     component: ComponentType<any>;
     dockOrder?: number;          // Order in dock (lower = earlier)
+    menu?: AppMenuConfig;        // App-specific menu configuration
 }
 
 // Centralized App Registry
@@ -31,7 +35,7 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
     finder: {
         id: 'finder',
         name: 'Finder',
-        description: 'Browse and manage your files',
+        description: 'File Manager',
         icon: FolderOpen,
         iconColor: 'from-blue-500 to-blue-600',
         iconSolid: '#3b82f6',
@@ -39,92 +43,100 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         isCore: true,
         component: FileManager,
         dockOrder: 1,
+        menu: finderMenuConfig,
     },
     browser: {
         id: 'browser',
         name: 'Browser',
-        description: 'Surf the web',
+        description: 'Access the web',
         icon: Globe,
-        iconColor: 'from-cyan-500 to-blue-600',
-        iconSolid: '#06b6d4',
+        iconColor: 'from-blue-400 to-indigo-500',
+        iconSolid: '#6366f1',
         category: 'utilities',
         isCore: true,
         component: Browser,
-        dockOrder: 3,
+        dockOrder: 2,
+        menu: browserMenuConfig,
     },
     mail: {
         id: 'mail',
         name: 'Mail',
-        description: 'Send and receive emails',
+        description: 'Read and write emails',
         icon: Mail,
-        iconColor: 'from-blue-400 to-blue-500',
-        iconSolid: '#60a5fa',
+        iconColor: 'from-blue-400 to-sky-400',
+        iconSolid: '#38bdf8',
         category: 'productivity',
-        isCore: true,
+        isCore: false,
         component: PlaceholderApp,
-        dockOrder: 2,
+        dockOrder: 3,
+        menu: mailMenuConfig,
     },
     appstore: {
         id: 'appstore',
         name: 'App Store',
-        description: 'Install and manage applications',
+        description: 'Download and manage apps',
         icon: ShoppingBag,
-        iconColor: 'from-blue-500 to-indigo-600',
-        iconSolid: '#3b82f6',
+        iconColor: 'from-sky-500 to-blue-500',
+        iconSolid: '#0ea5e9',
         category: 'system',
         isCore: true,
         component: AppStoreComponent,
-        dockOrder: 14,
+        dockOrder: 4,
+        menu: appStoreMenuConfig,
     },
     terminal: {
         id: 'terminal',
         name: 'Terminal',
         description: 'Command line interface',
         icon: Terminal,
-        iconColor: 'from-gray-700 to-gray-900',
+        iconColor: 'from-gray-700 to-gray-800',
         iconSolid: '#374151',
         category: 'development',
         isCore: true,
         component: TerminalApp,
-        dockOrder: 10,
+        dockOrder: 9,
+        menu: terminalMenuConfig,
     },
     settings: {
         id: 'settings',
-        name: 'Settings',
-        description: 'Customize your system',
+        name: 'System Settings',
+        description: 'Configure your system',
         icon: Settings,
-        iconColor: 'from-gray-500 to-gray-600',
-        iconSolid: '#6b7280',
+        iconColor: 'from-slate-500 to-zinc-600',
+        iconSolid: '#71717a',
         category: 'system',
         isCore: true,
         component: SettingsApp,
-        dockOrder: 11,
+        dockOrder: 10,
+        menu: settingsMenuConfig,
     },
 
     // Optional Apps (can be installed/uninstalled)
     notepad: {
         id: 'notepad',
         name: 'Notepad',
-        description: 'Text and code editor with syntax highlighting',
+        description: 'Edit text files',
         icon: FileText,
-        iconColor: 'from-yellow-400 to-yellow-500',
-        iconSolid: '#eab308',
+        iconColor: 'from-yellow-400 to-amber-500',
+        iconSolid: '#f59e0b',
         category: 'productivity',
         isCore: false,
         component: Notepad,
         dockOrder: 4,
+        menu: notepadMenuConfig,
     },
     messages: {
         id: 'messages',
         name: 'Messages',
-        description: 'Chat with friends and family',
+        description: 'Chat with friends',
         icon: MessageSquare,
-        iconColor: 'from-green-500 to-green-600',
-        iconSolid: '#22c55e',
-        category: 'utilities',
-        isCore: false,
+        iconColor: 'from-green-500 to-emerald-600',
+        iconSolid: '#10b981',
+        category: 'productivity',
+        isCore: true,
         component: Messages,
         dockOrder: 5,
+        menu: messagesMenuConfig,
     },
     calendar: {
         id: 'calendar',
@@ -137,18 +149,20 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         isCore: false,
         component: PlaceholderApp,
         dockOrder: 6,
+        menu: calendarMenuConfig,
     },
     photos: {
         id: 'photos',
         name: 'Photos',
-        description: 'View and organize your photos',
+        description: 'View and manage photos',
         icon: Image,
         iconColor: 'from-pink-500 to-rose-600',
-        iconSolid: '#ec4899',
+        iconSolid: '#e11d48',
         category: 'media',
         isCore: false,
         component: Photos,
         dockOrder: 7,
+        menu: photosMenuConfig,
     },
     music: {
         id: 'music',
@@ -161,30 +175,33 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         isCore: false,
         component: MusicApp,
         dockOrder: 8,
+        menu: musicMenuConfig,
     },
     videos: {
         id: 'videos',
         name: 'Videos',
-        description: 'Watch and manage videos',
+        description: 'Watch movies and clips',
         icon: Video,
-        iconColor: 'from-orange-500 to-orange-600',
+        iconColor: 'from-orange-400 to-orange-500',
         iconSolid: '#f97316',
         category: 'media',
         isCore: false,
         component: PlaceholderApp,
         dockOrder: 9,
+        menu: videosMenuConfig,
     },
     'dev-center': {
         id: 'dev-center',
         name: 'DevCenter',
-        description: 'Developer tools and utilities',
+        description: 'Developer Tools',
         icon: Code,
-        iconColor: 'from-purple-500 to-purple-600',
-        iconSolid: '#9333ea',
+        iconColor: 'from-indigo-500 to-purple-600',
+        iconSolid: '#6366f1',
         category: 'development',
         isCore: false,
         component: DevCenter,
         dockOrder: 12,
+        menu: devCenterMenuConfig,
     },
 };
 

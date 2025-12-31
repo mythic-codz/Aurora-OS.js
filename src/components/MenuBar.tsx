@@ -21,28 +21,12 @@ import {
 import { Badge } from './ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
+import { getApp } from '../config/appRegistry';
+
 interface MenuBarProps {
   focusedApp?: string | null;
-  onOpenApp?: (appId: string) => void;
+  onOpenApp?: (type: string, data?: any, owner?: string) => void;
 }
-
-// App-specific menu configurations
-const appMenus: Record<string, { name: string; menus: string[] }> = {
-  finder: { name: 'Finder', menus: ['File', 'Edit', 'View', 'Go', 'Window', 'Help'] },
-  settings: { name: 'System Settings', menus: ['File', 'Edit', 'View', 'Window', 'Help'] },
-  photos: { name: 'Photos', menus: ['File', 'Edit', 'Image', 'View', 'Window', 'Help'] },
-  music: { name: 'Music', menus: ['File', 'Edit', 'Song', 'View', 'Controls', 'Window', 'Help'] },
-  messages: { name: 'Messages', menus: ['File', 'Edit', 'View', 'Conversations', 'Window', 'Help'] },
-  browser: { name: 'Browser', menus: ['File', 'Edit', 'View', 'History', 'Bookmarks', 'Window', 'Help'] },
-  terminal: { name: 'Terminal', menus: ['Shell', 'Edit', 'View', 'Window', 'Help'] },
-  videos: { name: 'Videos', menus: ['File', 'Edit', 'View', 'Playback', 'Window', 'Help'] },
-  calendar: { name: 'Calendar', menus: ['File', 'Edit', 'View', 'Window', 'Help'] },
-  notes: { name: 'Notes', menus: ['File', 'Edit', 'Format', 'View', 'Window', 'Help'] },
-  mail: { name: 'Mail', menus: ['File', 'Edit', 'View', 'Mailbox', 'Message', 'Window', 'Help'] },
-  'dev-center': { name: 'DevCenter', menus: ['File', 'Edit', 'View', 'Window', 'Help'] },
-};
-
-const defaultMenus = { name: 'Finder', menus: ['File', 'Edit', 'View', 'Go', 'Window', 'Help'] };
 
 function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
   const { menuBarBackground, blurStyle, getBackgroundColor } = useThemeColors();
@@ -106,22 +90,58 @@ function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
   }, []);
 
   // Get the menu config for the focused app
-  const appConfig = focusedApp ? appMenus[focusedApp] || defaultMenus : defaultMenus;
+  const activeApp = focusedApp ? getApp(focusedApp) : getApp('finder');
+  const appConfig = {
+    name: activeApp?.name || 'Finder',
+    menus: activeApp?.menu?.menus || ['File', 'Edit', 'View', 'Go', 'Window', 'Help'],
+    items: activeApp?.menu?.items
+  };
 
   // Add "DEV Center" to Finder menus if devMode is enabled
   const menuLabels = (appConfig.name === 'Finder' && devMode)
-    ? [...appConfig.menus, 'DEV Center'] // Keep existing logic for top-level item if needed, though usually this is an app, not a top-level menu
+    ? [...appConfig.menus, 'DEV Center']
     : appConfig.menus;
 
   // Render dummy menu content for now, can be expanded to be real later
   const renderMenuContent = (menuName: string) => {
+    // 1. Render App-Specific Custom Items
+    if (appConfig.items && appConfig.items[menuName]) {
+      return (
+        <>
+          {appConfig.items[menuName].map((item, idx) => {
+            if (item.type === 'separator') {
+              return <MenubarSeparator key={idx} />;
+            }
+            return (
+              <MenubarItem
+                key={idx}
+                disabled={item.disabled}
+                onClick={() => {
+                  if (item.action) {
+                    window.dispatchEvent(new CustomEvent('app-menu-action', {
+                      detail: {
+                        action: item.action,
+                        appId: activeApp?.id
+                      }
+                    }));
+                  }
+                }}
+              >
+                {item.label}
+                {item.shortcut && <MenubarShortcut>{item.shortcut}</MenubarShortcut>}
+              </MenubarItem>
+            );
+          })}
+        </>
+      );
+    }
+
+    // 2. Default Fallbacks (if no custom items provided for this menu)
     switch (menuName) {
       case 'File':
         return (
           <>
             <MenubarItem>New Window <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
-            <MenubarItem>Open... <MenubarShortcut>⌘O</MenubarShortcut></MenubarItem>
-            <MenubarSeparator />
             <MenubarItem>Close Window <MenubarShortcut>⌘W</MenubarShortcut></MenubarItem>
           </>
         );
@@ -142,18 +162,12 @@ function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
           <>
             <MenubarItem>Reload <MenubarShortcut>⌘R</MenubarShortcut></MenubarItem>
             <MenubarItem>Toggle Fullscreen <MenubarShortcut>F11</MenubarShortcut></MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem>Actual Size <MenubarShortcut>⌘0</MenubarShortcut></MenubarItem>
-            <MenubarItem>Zoom In <MenubarShortcut>⌘+</MenubarShortcut></MenubarItem>
-            <MenubarItem>Zoom Out <MenubarShortcut>⌘-</MenubarShortcut></MenubarItem>
           </>
         );
       case 'Window':
         return (
           <>
             <MenubarItem>Minimize <MenubarShortcut>⌘M</MenubarShortcut></MenubarItem>
-            <MenubarItem>Zoom</MenubarItem>
-            <MenubarSeparator />
             <MenubarItem>Bring All to Front</MenubarItem>
           </>
         );
@@ -165,7 +179,7 @@ function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
         );
       default:
         return (
-          <MenubarItem>Feature not implemented</MenubarItem>
+          <MenubarItem disabled>Feature not implemented</MenubarItem>
         );
     }
   };
@@ -220,7 +234,9 @@ function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
                   <p>View system settings</p>
                 </TooltipContent>
               </Tooltip>
-              <MenubarItem>App Store...<MenubarShortcut>Soon</MenubarShortcut></MenubarItem>
+              <MenubarItem onClick={() => onOpenApp?.('appstore')}>
+                App Store...
+              </MenubarItem>
               <MenubarSeparator className="bg-white/10" />
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -241,7 +257,7 @@ function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
                     // Switch User -> Logout to suspend, keep storage
                     logout();
                   }}>
-                    Switch User...
+                    Switch User
                   </MenubarItem>
                 </TooltipTrigger>
                 <TooltipContent side="right" sideOffset={10}>
@@ -257,7 +273,7 @@ function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
                     }
                     logout();
                   }}>
-                    Log Out {currentUser ? currentUser : 'User'}...
+                    Log Out: {currentUser ? currentUser : 'User'}
                   </MenubarItem>
                 </TooltipTrigger>
                 <TooltipContent side="right" sideOffset={10}>

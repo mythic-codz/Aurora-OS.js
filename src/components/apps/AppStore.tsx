@@ -6,6 +6,8 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Search, Download, Trash2, Check } from 'lucide-react';
 import { cn } from '../ui/utils';
+import { AppIcon } from '../ui/AppIcon';
+import { EmptyState } from '../ui/empty-state';
 import { useAppContext } from '../AppContext';
 
 interface AppStoreProps {
@@ -92,16 +94,17 @@ export function AppStore({ owner: _owner }: AppStoreProps) {
             content={
                 <div className="p-6 overflow-y-auto h-full">
                     {filteredApps.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-64 text-white/40">
-                            <Search className="w-16 h-16 mb-4" />
-                            <p className="text-lg">No apps found</p>
-                            <p className="text-sm">Try adjusting your search or category filter</p>
+                        <div className="h-full flex items-center justify-center">
+                            <EmptyState
+                                icon={Search}
+                                title="No apps found"
+                                description="Try adjusting your search or category filter to find what you're looking for."
+                            />
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filteredApps.map((app) => {
                                 const isInstalled = installedApps.has(app.id);
-                                const IconComponent = app.icon;
 
                                 return (
                                     <div
@@ -110,14 +113,7 @@ export function AppStore({ owner: _owner }: AppStoreProps) {
                                     >
                                         {/* App Icon & Name */}
                                         <div className="flex items-start gap-4 mb-3">
-                                            <div
-                                                className={cn(
-                                                    "w-16 h-16 rounded-xl flex items-center justify-center text-white shrink-0",
-                                                    `bg-gradient-to-br ${app.iconColor}`
-                                                )}
-                                            >
-                                                <IconComponent className="w-8 h-8" />
-                                            </div>
+                                            <AppIcon app={app} size="lg" />
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="text-white font-semibold text-lg mb-1">{app.name}</h3>
                                                 <p className="text-white/60 text-xs uppercase tracking-wide">{app.category}</p>
@@ -167,9 +163,24 @@ export function AppStore({ owner: _owner }: AppStoreProps) {
                                 );
                             })}
                         </div>
-                    )}
+                    )
+                    }
                 </div>
             }
         />
     );
 }
+
+import { AppMenuConfig } from '../../types';
+
+export const appStoreMenuConfig: AppMenuConfig = {
+    menus: ['File', 'Edit', 'Store', 'Window', 'Help'],
+    items: {
+        'Store': [
+            { label: 'Reload', shortcut: '⌘R', action: 'reload' },
+            { type: 'separator' },
+            { label: 'Check for Updates...', action: 'check-updates' },
+            { label: 'View My Account', action: 'view-account' }
+        ]
+    }
+};

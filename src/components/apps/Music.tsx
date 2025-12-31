@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Howl } from 'howler';
-import { Clock, PlayCircle, Music2, Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import { Clock, PlayCircle, Music2, Play, Pause, SkipBack, SkipForward, Volume2, FolderOpen } from 'lucide-react';
 import { AppTemplate } from './AppTemplate';
 import { useAppContext } from '../AppContext';
 import { useThemeColors } from '../../hooks/useThemeColors';
@@ -9,6 +9,8 @@ import { useMusic, type Song } from '../MusicContext';
 import { useWindow } from '../WindowContext';
 import { cn } from '../ui/utils';
 import { Slider } from '../ui/slider';
+import { Button } from '../ui/button';
+import { EmptyState } from '../ui/empty-state';
 
 // Helper to parse "Artist - Title.ext" or fallback to "Title"
 const parseMetadata = (filename: string) => {
@@ -65,9 +67,10 @@ const musicSidebar = (songCount: number, onSelect: (id: string) => void) => ({
 interface MusicProps {
   owner?: string;
   initialPath?: string;
+  onOpenApp?: (type: string, data?: any, owner?: string) => void;
 }
 
-export function Music({ owner, initialPath }: MusicProps) {
+export function Music({ owner, initialPath, onOpenApp }: MusicProps) {
   // const [appState, setAppState] = useAppStorage... (Moved to Context)
 
   const { fileSystem, resolvePath, listDirectory, getNodeAtPath, readFile } = useFileSystem();
@@ -335,130 +338,152 @@ export function Music({ owner, initialPath }: MusicProps) {
     return (
       <div className="flex flex-col h-full w-full overflow-hidden">
         {/* Song List */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-1">
-            {displaySongs.length === 0 ? (
-              <div className="text-white/40 text-center mt-10 text-sm">
-                {activeCategory === 'recent'
-                  ? "No songs played yet"
-                  : "No matching songs found in ~/Music"}
-              </div>
-            ) : displaySongs.map((song) => (
-              <button
-                key={song.id}
-                onClick={() => {
-                  // When clicking a song, assume the user wants to play *this list*.
-                  // We update the playlist to match the current view (displaySongs).
-                  // But we must be careful not to reset if it's already the active context?
-                  // Actually, enforcing "View = Queue" is the most robust way to ensure Next/Prev work as expected.
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col">
+          {displaySongs.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center -mt-10">
+              {activeCategory === 'recent' ? (
+                <EmptyState
+                  icon={Clock}
+                  title="No recently played songs"
+                  description="Your recently ad-hoc played songs will appear here."
+                />
+              ) : (
+                <EmptyState
+                  icon={Music2}
+                  title="No songs found"
+                  description="No music files were found in your Music folder."
+                  action={
+                    <Button
+                      variant="outline"
+                      onClick={() => onOpenApp?.('finder', { path: '~/Music' }, owner)}
+                      className="gap-2 border-white/20 text-white hover:bg-white/10"
+                    >
+                      <FolderOpen className="w-4 h-4" />
+                      Open Music Folder
+                    </Button>
+                  }
+                />
+              )}
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {displaySongs.map((song) => (
+                <button
+                  key={song.id}
+                  onClick={() => {
+                    // When clicking a song, assume the user wants to play *this list*.
+                    // We update the playlist to match the current view (displaySongs).
+                    // But we must be careful not to reset if it's already the active context?
+                    // Actually, enforcing "View = Queue" is the most robust way to ensure Next/Prev work as expected.
 
-                  // Optimization: Only update playlist if it's different or if we are switching contexts.
-                  // For simplicity and robustness given the "funny controls" report, we force sync.
-                  // We also need to map to ensure we pass a clean array.
+                    // Optimization: Only update playlist if it's different or if we are switching contexts.
+                    // For simplicity and robustness given the "funny controls" report, we force sync.
+                    // We also need to map to ensure we pass a clean array.
 
-                  // NOTE: playSong checks index in *current* playlist state. 
-                  // If we call setPlaylist, playSong won't see the new playlist immediately in the same render cycle
-                  // because `songs` (playlist) is a dependency.
-                  // SO we should setPlaylist FIRST, then pass the song? 
-                  // OR we need a way to say "Play this song in this new playlist".
+                    // NOTE: playSong checks index in *current* playlist state. 
+                    // If we call setPlaylist, playSong won't see the new playlist immediately in the same render cycle
+                    // because `songs` (playlist) is a dependency.
+                    // SO we should setPlaylist FIRST, then pass the song? 
+                    // OR we need a way to say "Play this song in this new playlist".
 
-                  // Calling setPlaylist will trigger the `setPlaylist` wrapper we wrote, which syncs currentIndex.
-                  // But we want to set the index to *this specific song*.
+                    // Calling setPlaylist will trigger the `setPlaylist` wrapper we wrote, which syncs currentIndex.
+                    // But we want to set the index to *this specific song*.
 
-                  // Strategy:
-                  // 1. Set Playlist to `displaySongs`.
-                  // 2. Play the song.
+                    // Strategy:
+                    // 1. Set Playlist to `displaySongs`.
+                    // 2. Play the song.
 
-                  // Check if current playlist is already this list to avoid reload ripple?
-                  // Comparing arrays is expensive. Let's just do it.
+                    // Check if current playlist is already this list to avoid reload ripple?
+                    // Comparing arrays is expensive. Let's just do it.
 
 
-                  setPlaylist(displaySongs);
+                    setPlaylist(displaySongs);
 
-                  // Since setPlaylist is async/batched, checking `playlist` inside `playSong` immediately will read OLD playlist.
-                  // WE NEED A NEW METHOD in Context: `playSongInContext(song, contextList)`.
-                  // Or we manually handle it here:
-                  // 
-                  // But we don't have access to the deep `playSoundImplementation` here.
-                  // Reverting to simpler approach:
-                  // If we change playlist, we can trust `setPlaylist` wrapper to sync index IF the song was already playing.
-                  // But here we are *starting* a song.
+                    // Since setPlaylist is async/batched, checking `playlist` inside `playSong` immediately will read OLD playlist.
+                    // WE NEED A NEW METHOD in Context: `playSongInContext(song, contextList)`.
+                    // Or we manually handle it here:
+                    // 
+                    // But we don't have access to the deep `playSoundImplementation` here.
+                    // Reverting to simpler approach:
+                    // If we change playlist, we can trust `setPlaylist` wrapper to sync index IF the song was already playing.
+                    // But here we are *starting* a song.
 
-                  // Let's use `playSong` but simply update playlist first? 
-                  // No, `playSong` relies on `playlist` state.
+                    // Let's use `playSong` but simply update playlist first? 
+                    // No, `playSong` relies on `playlist` state.
 
-                  // Let's update `playSong` in Context to support context switching? 
-                  // Or simpler: Just update playlist, and we know the index.
-                  // We can't easily access `playRef` from here.
+                    // Let's update `playSong` in Context to support context switching? 
+                    // Or simpler: Just update playlist, and we know the index.
+                    // We can't easily access `playRef` from here.
 
-                  // WORKAROUND:
-                  // `setPlaylist` takes `displaySongs`.
-                  // `playSong` accepts the song.
-                  // Issue: `playSong` logic: `idx = playlist.findIndex...`. It uses stale `playlist`.
+                    // WORKAROUND:
+                    // `setPlaylist` takes `displaySongs`.
+                    // `playSong` accepts the song.
+                    // Issue: `playSong` logic: `idx = playlist.findIndex...`. It uses stale `playlist`.
 
-                  // If we just `playSong(song)`, it plays. BUT playlist is wrong.
-                  // If we `setPlaylist(displaySongs)`, then `playSong(song)`... stale playlist used by `playSong`.
+                    // If we just `playSong(song)`, it plays. BUT playlist is wrong.
+                    // If we `setPlaylist(displaySongs)`, then `playSong(song)`... stale playlist used by `playSong`.
 
-                  // CORRECT FIX: calling `playSong(song)` is NOT ENOUGH if we want to switch playlist context.
-                  // We should probably rely on `playSong` to handle this if we pass the context.
-                  // BUT changing Context interface is a bigger refactor.
+                    // CORRECT FIX: calling `playSong(song)` is NOT ENOUGH if we want to switch playlist context.
+                    // We should probably rely on `playSong` to handle this if we pass the context.
+                    // BUT changing Context interface is a bigger refactor.
 
-                  // ALTERNATIVE:
-                  // Use `useEffect`? No.
-                  // 
-                  // What if we just set the playlist and *then* rely on the fact that `playSong` will find it? 
-                  // No, race condition.
+                    // ALTERNATIVE:
+                    // Use `useEffect`? No.
+                    // 
+                    // What if we just set the playlist and *then* rely on the fact that `playSong` will find it? 
+                    // No, race condition.
 
-                  // Use `setTimeout`? Dirty.
+                    // Use `setTimeout`? Dirty.
 
-                  // Let's add a `playTrackInList` method to Context?
-                  // Or just assume `playSong` is fine, but we force the playlist update *inside* `playSong` if we pass it? 
-                  //
-                  // Let's stick to the current scope.
-                  // I will update `playSong` in `MusicContext` to accept an optional `newPlaylist` argument.
+                    // Let's add a `playTrackInList` method to Context?
+                    // Or just assume `playSong` is fine, but we force the playlist update *inside* `playSong` if we pass it? 
+                    //
+                    // Let's stick to the current scope.
+                    // I will update `playSong` in `MusicContext` to accept an optional `newPlaylist` argument.
 
-                  playSong(song, displaySongs);
-                }}
-                className={cn(
-                  "w-full flex items-center gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors group",
-                  currentSong?.id === song.id && "bg-white/10"
-                )}
-              >
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 relative overflow-hidden bg-white/5"
-                  style={{
-                    backgroundColor: currentSong?.id === song.id ? accentColor : undefined
-                  }}>
-
-                  {currentSong?.id === song.id && isPlaying ? (
-                    <div className="flex items-end gap-0.5 h-3">
-                      <div className="w-1 bg-white animate-[music-bar_0.5s_ease-in-out_infinite]" />
-                      <div className="w-1 bg-white animate-[music-bar_0.7s_ease-in-out_infinite]" />
-                      <div className="w-1 bg-white animate-[music-bar_0.4s_ease-in-out_infinite]" />
-                    </div>
-                  ) : (
-                    <Music2
-                      className={cn("w-5 h-5", currentSong?.id === song.id ? "text-white" : "")}
-                      style={currentSong?.id === song.id ? undefined : { color: accentColor }}
-                    />
+                    playSong(song, displaySongs);
+                  }}
+                  className={cn(
+                    "w-full flex items-center gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors group",
+                    currentSong?.id === song.id && "bg-white/10"
                   )}
-                </div>
+                >
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 relative overflow-hidden bg-white/5"
+                    style={{
+                      backgroundColor: currentSong?.id === song.id ? accentColor : undefined
+                    }}>
 
-                <div className="flex-1 text-left min-w-0">
-                  <div className={cn("text-sm truncate font-medium", currentSong?.id === song.id ? "text-white" : "text-white/90")}>
-                    {song.title}
+                    {currentSong?.id === song.id && isPlaying ? (
+                      <div className="flex items-end gap-0.5 h-3">
+                        <div className="w-1 bg-white animate-[music-bar_0.5s_ease-in-out_infinite]" />
+                        <div className="w-1 bg-white animate-[music-bar_0.7s_ease-in-out_infinite]" />
+                        <div className="w-1 bg-white animate-[music-bar_0.4s_ease-in-out_infinite]" />
+                      </div>
+                    ) : (
+                      <Music2
+                        className={cn("w-5 h-5", currentSong?.id === song.id ? "text-white" : "")}
+                        style={currentSong?.id === song.id ? undefined : { color: accentColor }}
+                      />
+                    )}
                   </div>
-                  <div className="text-white/60 text-xs truncate">{song.artist}</div>
-                  {activeCategory === 'recent' && (
-                    <div className="text-white/40 text-[10px] truncate font-mono mt-0.5" title={song.path}>
-                      {song.path}
+
+                  <div className="flex-1 text-left min-w-0">
+                    <div className={cn("text-sm truncate font-medium", currentSong?.id === song.id ? "text-white" : "text-white/90")}>
+                      {song.title}
                     </div>
-                  )}
-                </div>
-                {showAlbum && <div className="text-white/60 text-xs truncate w-1/3 text-right">{song.album}</div>}
-                <div className="text-white/60 text-xs w-12 text-right tabular-nums">{song.duration}</div>
-              </button>
-            ))}
-          </div>
+                    <div className="text-white/60 text-xs truncate">{song.artist}</div>
+                    {activeCategory === 'recent' && (
+                      <div className="text-white/40 text-[10px] truncate font-mono mt-0.5" title={song.path}>
+                        {song.path}
+                      </div>
+                    )}
+                  </div>
+                  {showAlbum && <div className="text-white/60 text-xs truncate w-1/3 text-right">{song.album}</div>}
+                  <div className="text-white/60 text-xs w-12 text-right tabular-nums">{song.duration}</div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Now Playing Bar */}
@@ -555,3 +580,30 @@ export function Music({ owner, initialPath }: MusicProps) {
     />
   );
 }
+
+import { AppMenuConfig } from '../../types';
+
+export const musicMenuConfig: AppMenuConfig = {
+  menus: ['File', 'Edit', 'Song', 'View', 'Controls', 'Window', 'Help'],
+  items: {
+    'File': [
+      { label: 'New Playlist', shortcut: '⌘N', action: 'new-playlist' },
+      { label: 'Import...', shortcut: '⌘O', action: 'import' },
+      { type: 'separator' },
+      { label: 'Close Window', shortcut: '⌘W', action: 'close-window' }
+    ],
+    'Song': [
+      { label: 'Show in Finder', shortcut: '⌘R', action: 'show-in-finder' },
+      { label: 'Add to Playlist', action: 'add-to-playlist' }
+    ],
+    'Controls': [
+      { label: 'Play', shortcut: 'Space', action: 'play-pause' },
+      { type: 'separator' },
+      { label: 'Previous Song', shortcut: '⌘←', action: 'prev' },
+      { label: 'Next Song', shortcut: '⌘→', action: 'next' },
+      { type: 'separator' },
+      { label: 'Volume Up', shortcut: '⌘↑', action: 'volume-up' },
+      { label: 'Volume Down', shortcut: '⌘↓', action: 'volume-down' },
+    ]
+  }
+};

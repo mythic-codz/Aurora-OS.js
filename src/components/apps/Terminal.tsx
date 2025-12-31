@@ -208,3 +208,24 @@ const TerminalHistoryItem = memo(function TerminalHistoryItem({ item, homePath, 
     </div>
   );
 });
+
+import { AppMenuConfig } from '../../types';
+
+export const terminalMenuConfig: AppMenuConfig = {
+  menus: ['Shell', 'Edit', 'View', 'Window', 'Help'],
+  items: {
+    'Shell': [
+      { label: 'New Tab', shortcut: '⌘T', action: 'new-tab' },
+      { label: 'New Window', shortcut: '⌘N', action: 'new-window' },
+      { type: 'separator' },
+      { label: 'Clear Scrollback', shortcut: '⌘K', action: 'clear' },
+      { type: 'separator' },
+      { label: 'Close Window', shortcut: '⌘W', action: 'close-window' }
+    ],
+    'Edit': [
+      { label: 'Copy', shortcut: '⌘C', action: 'copy' },
+      { label: 'Paste', shortcut: '⌘V', action: 'paste' },
+      { label: 'Select All', shortcut: '⌘A', action: 'select-all' }
+    ]
+  }
+};

@@ -217,3 +217,17 @@ export function Messages({ owner }: { owner?: string }) {
     </div>
   );
 }
+
+import { AppMenuConfig } from '../../types';
+
+export const messagesMenuConfig: AppMenuConfig = {
+  menus: ['File', 'Edit', 'View', 'Conversations', 'Window', 'Help'],
+  items: {
+    'Conversations': [
+      { label: 'New Message', shortcut: '⌘N', action: 'new-message' },
+      { type: 'separator' },
+      { label: 'Delete Conversation', action: 'delete-conversation' },
+      { label: 'Mute Notifications', action: 'mute' }
+    ]
+  }
+};

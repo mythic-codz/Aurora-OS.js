@@ -124,3 +124,30 @@ export function Browser({ owner }: { owner?: string }) {
 
   return <AppTemplate toolbar={tabBar} content={content} hasSidebar={false} contentClassName="overflow-y-auto" />;
 }
+
+import { AppMenuConfig } from '../../types';
+
+export const browserMenuConfig: AppMenuConfig = {
+  menus: ['File', 'Edit', 'View', 'History', 'Bookmarks', 'Window', 'Help'],
+  items: {
+    'File': [
+      { label: 'New Tab', shortcut: '⌘T', action: 'new-tab' },
+      { label: 'New Window', shortcut: '⌘N', action: 'new-window' },
+      { type: 'separator' },
+      { label: 'Close Tab', shortcut: '⌘W', action: 'close-tab' }
+    ],
+    'View': [
+      { label: 'Reload', shortcut: '⌘R', action: 'reload' },
+      { label: 'Stop', shortcut: 'Esc', action: 'stop' },
+      { type: 'separator' },
+      { label: 'Zoom In', shortcut: '⌘+', action: 'zoom-in' },
+      { label: 'Zoom Out', shortcut: '⌘-', action: 'zoom-out' }
+    ],
+    'History': [
+      { label: 'Back', shortcut: '⌘[', action: 'back' },
+      { label: 'Forward', shortcut: '⌘]', action: 'forward' },
+      { type: 'separator' },
+      { label: 'Show Full History', shortcut: '⌘Y', action: 'history' }
+    ]
+  }
+};

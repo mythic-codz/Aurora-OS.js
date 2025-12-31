@@ -7,6 +7,7 @@ import { useAppContext } from './AppContext';
 import { useFileSystem } from './FileSystemContext';
 import { cn } from './ui/utils';
 import { getDockApps } from '../config/appRegistry';
+import { AppIcon } from './ui/AppIcon';
 
 interface DockProps {
   onOpenApp: (appType: string, data?: any) => void;
@@ -152,17 +153,7 @@ function DockComponent({ onOpenApp, onRestoreWindow, onFocusWindow, windows }: D
             const hasWindows = appWindows.length > 0;
             const windowCount = appWindows.length;
 
-            // Handle gradient vs solid color logic
-            // Use inline style for solid color to guarantee rendering
-            const bgClass = disableGradients
-              ? ''
-              : `bg-gradient-to-br ${app.iconColor}`;
 
-            const style = disableGradients
-              ? { backgroundColor: app.iconSolid }
-              : {};
-
-            const IconComponent = app.icon;
 
             return (
               <div key={app.id} className="flex flex-col items-center gap-2">
@@ -173,28 +164,29 @@ function DockComponent({ onOpenApp, onRestoreWindow, onFocusWindow, windows }: D
 
                 <motion.button
                   aria-label={app.name}
-                  className={cn(
-                    "relative w-12 h-12 rounded-xl flex items-center justify-center text-white transition-all",
-                    bgClass,
-                    !disableShadows && "shadow-lg hover:shadow-xl"
-                  )}
-                  style={style}
+                  className="relative group"
                   onMouseEnter={() => setHoveredIndex(index)}
                   onMouseLeave={() => setHoveredIndex(null)}
                   onClick={(e) => handleAppClick(app.id, e)}
                   whileHover={reduceMotion ? { scale: 1, x: 0 } : { scale: 1.1, x: 8 }}
                   whileTap={reduceMotion ? { scale: 1 } : { scale: 0.95 }}
                 >
-                  <IconComponent className="w-6 h-6" />
+                  <AppIcon
+                    app={app}
+                    size="md"
+                    className={cn(
+                      "w-12 h-12",
+                      !disableShadows && "shadow-lg hover:shadow-xl"
+                    )}
+                    showIcon={true}
+                  />
 
-                  {/* Running indicator dot(s) */}
+                  {/* Running indicator dots positioned over the icon */}
                   {hasWindows && (
-                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5 z-10">
                       {/* Show up to 3 dots */}
                       {Array.from({ length: Math.min(windowCount, 3) }).map((_, i) => {
                         const visibleCount = appWindows.filter(w => !w.isMinimized).length;
-                        // If i < visibleCount -> Bright (Visible)
-                        // If i >= visibleCount -> Dim (Minimized)
                         const isVisibleDot = i < visibleCount;
 
                         return (
@@ -263,8 +255,8 @@ function DockComponent({ onOpenApp, onRestoreWindow, onFocusWindow, windows }: D
             )}
           </motion.button>
         </div>
-      </motion.div>
-    </div>
+      </motion.div >
+    </div >
   );
 }
 

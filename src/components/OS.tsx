@@ -183,7 +183,7 @@ export default function OS() {
             case 'music':
                 title = 'Music';
                 content = (
-                    <Music owner={owner} initialPath={data?.path} />
+                    <Music owner={owner} initialPath={data?.path} onOpenApp={openWindowRef.current} />
                 );
                 break;
             case 'messages':

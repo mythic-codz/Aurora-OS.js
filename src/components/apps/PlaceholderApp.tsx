@@ -1,23 +1,40 @@
+import { Mail, Calendar, Video, LucideIcon, FileQuestion } from 'lucide-react';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { EmptyState } from '../ui/empty-state';
 
 interface PlaceholderAppProps {
     title: string;
 }
 
+const APP_ICONS: Record<string, LucideIcon> = {
+    'Mail': Mail,
+    'Calendar': Calendar,
+    'Videos': Video
+};
+
+const APP_DESCRIPTIONS: Record<string, string> = {
+    'Mail': 'Manage your emails, contacts, and calendar events.',
+    'Calendar': 'Schedule meetings, events, and reminders.',
+    'Videos': 'Watch your favorite movies and video clips.'
+};
+
 export function PlaceholderApp({ title }: PlaceholderAppProps) {
-    const { getBackgroundColor, blurStyle } = useThemeColors();
+    const { blurStyle } = useThemeColors();
+    const Icon = APP_ICONS[title] || FileQuestion;
+    const description = APP_DESCRIPTIONS[title] || 'This application is currently under development.';
 
     return (
         <div
-            className="h-full flex flex-col items-center justify-center text-white/60"
+            className="h-full flex flex-col items-center justify-center bg-black/40"
             style={{
-                background: getBackgroundColor(0.4),
                 ...blurStyle
             }}
         >
-            <div className="text-4xl mb-4 opacity-50">🚧</div>
-            <h2 className="text-xl font-medium mb-2">{title}</h2>
-            <p className="text-sm opacity-70">Coming soon...</p>
+            <EmptyState
+                icon={Icon}
+                title={`${title} is Coming Soon`}
+                description={description}
+            />
         </div>
     );
 }

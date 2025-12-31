@@ -4,6 +4,7 @@ import pkg from '../../../package.json';
 import { Terminal, Code, Cpu, Activity, PartyPopper, Bell, Volume2, HardDrive, FileJson, RefreshCw, Trash2, Download, Upload, XCircle, ChevronRight, ChevronDown, Copy } from 'lucide-react';
 import { AppTemplate } from './AppTemplate';
 import { GlassButton } from '../ui/GlassButton';
+import { EmptyState } from '../ui/empty-state';
 import { notify } from '../../services/notifications';
 import { feedback } from '../../services/soundFeedback';
 import { getStorageStats, formatBytes } from '../../utils/memory';
@@ -353,28 +354,28 @@ export function DevCenter() {
                 );
             case 'editor':
                 return (
-                    <div className="flex flex-col items-center justify-center h-full text-white/50 space-y-4">
-                        <Code className="w-16 h-16 opacity-50" />
-                        <h2 className="text-xl font-medium text-white/80">Code Editor</h2>
-                        <p>Monaco editor integration coming soon.</p>
-                    </div>
+                    <EmptyState
+                        icon={Code}
+                        title="Code Editor"
+                        description="Monaco editor integration coming soon."
+                    />
                 );
             case 'performance':
                 return (
-                    <div className="flex flex-col items-center justify-center h-full text-white/50 space-y-4">
-                        <Cpu className="w-16 h-16 opacity-50" />
-                        <h2 className="text-xl font-medium text-white/80">Performance Monitor</h2>
-                        <p>Real-time CPU/RAM metrics coming soon.</p>
-                    </div>
+                    <EmptyState
+                        icon={Cpu}
+                        title="Performance Monitor"
+                        description="Real-time CPU/RAM metrics coming soon."
+                    />
                 );
             case 'dashboard':
             default:
                 return (
-                    <div className="flex flex-col items-center justify-center h-full text-white/50 space-y-4">
-                        <Activity className="w-16 h-16 opacity-50" />
-                        <h2 className="text-xl font-medium text-white/80">Developer Dashboard</h2>
-                        <p>Welcome to the {pkg.build.productName} Developer Center.</p>
-                    </div>
+                    <EmptyState
+                        icon={Activity}
+                        title="Developer Dashboard"
+                        description={`Welcome to the ${pkg.build.productName} Developer Center.`}
+                    />
                 );
         }
     };
@@ -388,3 +389,17 @@ export function DevCenter() {
         />
     );
 }
+
+import { AppMenuConfig } from '../../types';
+
+export const devCenterMenuConfig: AppMenuConfig = {
+    menus: ['File', 'Edit', 'View', 'Tools', 'Window', 'Help'],
+    items: {
+        'Tools': [
+            { label: 'Reset Filesystem', action: 'reset-fs' },
+            { label: 'Clear Logs', action: 'clear-logs' },
+            { type: 'separator' },
+            { label: 'Run Diagnostics', action: 'run-diagnostics' }
+        ]
+    }
+};

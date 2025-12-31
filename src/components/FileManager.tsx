@@ -711,3 +711,35 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
 
   return <AppTemplate sidebar={fileManagerSidebar} toolbar={toolbar} content={content} minContentWidth={600} />;
 }
+
+import { AppMenuConfig } from '../types';
+
+export const finderMenuConfig: AppMenuConfig = {
+  menus: ['File', 'Edit', 'View', 'Go', 'Window', 'Help'],
+  items: {
+    'File': [
+      { label: 'New Window', shortcut: '⌘N', action: 'new-window' },
+      { label: 'New Folder', shortcut: '⇧⌘N', action: 'new-folder' },
+      { type: 'separator' },
+      { label: 'Close Window', shortcut: '⌘W', action: 'close-window' }
+    ],
+    'Edit': [
+      { label: 'Undo', shortcut: '⌘Z', action: 'undo' },
+      { label: 'Redo', shortcut: '⇧⌘Z', action: 'redo' },
+      { type: 'separator' },
+      { label: 'Cut', shortcut: '⌘X', action: 'cut' },
+      { label: 'Copy', shortcut: '⌘C', action: 'copy' },
+      { label: 'Paste', shortcut: '⌘V', action: 'paste' },
+      { label: 'Select All', shortcut: '⌘A', action: 'select-all' }
+    ],
+    'Go': [
+      { label: 'Back', shortcut: '⌘[', action: 'go-back' },
+      { label: 'Forward', shortcut: '⌘]', action: 'go-forward' },
+      { label: 'Enclosing Folder', shortcut: '⌘↑', action: 'go-up' },
+      { type: 'separator' },
+      { label: 'Home', shortcut: '⇧⌘H', action: 'go-home' },
+      { label: 'Desktop', shortcut: '⇧⌘D', action: 'go-desktop' },
+      { label: 'Downloads', shortcut: '⌥⌘L', action: 'go-downloads' }
+    ]
+  }
+};

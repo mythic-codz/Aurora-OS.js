@@ -62,10 +62,15 @@ function WindowComponent({
   // ... (rest of the file until return)
 
   // Calculate position/size based on state
+  // Calculate explicit dimensions for maximized state to ensure Rnd handles it correctly
+  // Use globalThis to avoid shadowing the 'window' prop
+  const maximizeWidth = typeof globalThis !== 'undefined' ? globalThis.innerWidth : 1000;
+  const maximizeHeight = typeof globalThis !== 'undefined' ? globalThis.innerHeight - 30 : 800; // 30px to be safe (28px bar + 2px border/shadow)
+
   const x = window.isMaximized ? 0 : window.position.x;
   const y = window.isMaximized ? 28 : window.position.y;
-  const width = window.isMaximized ? '100vw' : window.size.width;
-  const height = window.isMaximized ? 'calc(100vh - 28px)' : window.size.height;
+  const width = window.isMaximized ? maximizeWidth : window.size.width;
+  const height = window.isMaximized ? maximizeHeight : window.size.height;
 
   // Calculate target position for minimize animation
   const getMinimizeTarget = () => {

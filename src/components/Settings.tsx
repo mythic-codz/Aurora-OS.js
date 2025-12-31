@@ -10,6 +10,7 @@ import { getComplementaryColor } from '../utils/colors';
 import { cn } from './ui/utils';
 import { GlassButton } from './ui/GlassButton';
 import { GlassInput } from './ui/GlassInput';
+import { EmptyState } from './ui/empty-state';
 import { useSessionStorage } from '../hooks/useSessionStorage';
 import pkg from '../../package.json';
 import defaultWallpaper from '../assets/images/background.png';
@@ -426,8 +427,12 @@ export function Settings({ owner }: { owner?: string }) {
         {activeSection === 'displays' && (
           <div>
             <h2 className="text-2xl text-white mb-6">Displays</h2>
-            <div className="bg-black/20 rounded-xl p-6 border border-white/5">
-              <p className="text-white/60">Display settings coming soon...</p>
+            <div className="bg-black/20 rounded-xl border border-white/5">
+              <EmptyState
+                icon={Monitor}
+                title="Display Settings"
+                description="Resolution, scaling, and brightness controls coming soon."
+              />
             </div>
           </div>
         )}
@@ -435,8 +440,12 @@ export function Settings({ owner }: { owner?: string }) {
         {activeSection === 'notifications' && (
           <div>
             <h2 className="text-2xl text-white mb-6">Notifications</h2>
-            <div className="bg-black/20 rounded-xl p-6 border border-white/5">
-              <p className="text-white/60">Notification settings coming soon...</p>
+            <div className="bg-black/20 rounded-xl border border-white/5">
+              <EmptyState
+                icon={Bell}
+                title="Notifications"
+                description="Notification center preferences coming soon."
+              />
             </div>
           </div>
         )}
@@ -444,8 +453,12 @@ export function Settings({ owner }: { owner?: string }) {
         {activeSection === 'network' && (
           <div>
             <h2 className="text-2xl text-white mb-6">Network</h2>
-            <div className="bg-black/20 rounded-xl p-6 border border-white/5">
-              <p className="text-white/60">Network settings coming soon...</p>
+            <div className="bg-black/20 rounded-xl border border-white/5">
+              <EmptyState
+                icon={Wifi}
+                title="Network"
+                description="Wi-Fi and Bluetooth configurations coming soon."
+              />
             </div>
           </div>
         )}
@@ -453,8 +466,12 @@ export function Settings({ owner }: { owner?: string }) {
         {activeSection === 'security' && (
           <div>
             <h2 className="text-2xl text-white mb-6">Security & Privacy</h2>
-            <div className="bg-black/20 rounded-xl p-6 border border-white/5">
-              <p className="text-white/60">Security settings coming soon...</p>
+            <div className="bg-black/20 rounded-xl border border-white/5">
+              <EmptyState
+                icon={Shield}
+                title="Security & Privacy"
+                description="Firewall, permissions, and privacy settings coming soon."
+              />
             </div>
           </div>
         )}
@@ -560,8 +577,12 @@ export function Settings({ owner }: { owner?: string }) {
         {activeSection === 'storage' && (
           <div>
             <h2 className="text-2xl text-white mb-6">Storage</h2>
-            <div className="bg-black/20 rounded-xl p-6 border border-white/5">
-              <p className="text-white/60">Storage settings coming soon...</p>
+            <div className="bg-black/20 rounded-xl border border-white/5">
+              <EmptyState
+                icon={HardDrive}
+                title="Storage"
+                description="Disk usage analysis and management coming soon."
+              />
             </div>
           </div>
         )}
@@ -772,3 +793,19 @@ export function Settings({ owner }: { owner?: string }) {
     />
   );
 }
+
+import { AppMenuConfig } from '../types';
+
+export const settingsMenuConfig: AppMenuConfig = {
+  menus: ['File', 'Edit', 'View', 'Window', 'Help'],
+  items: {
+    'File': [
+      { label: 'Close Window', shortcut: '⌘W', action: 'close-window' }
+    ],
+    'View': [
+      { label: 'General', action: 'view-general' },
+      { label: 'Appearance', action: 'view-appearance' },
+      { label: 'Display', action: 'view-display' }
+    ]
+  }
+};

@@ -91,3 +91,17 @@ export function Photos({ owner }: { owner?: string }) {
     />
   );
 }
+
+import { AppMenuConfig } from '../../types';
+
+export const photosMenuConfig: AppMenuConfig = {
+  menus: ['File', 'Edit', 'Image', 'View', 'Window', 'Help'],
+  items: {
+    'Image': [
+      { label: 'Slideshow', action: 'slideshow' },
+      { type: 'separator' },
+      { label: 'Rotate Clockwise', shortcut: '⌘R', action: 'rotate-cw' },
+      { label: 'Rotate Counter Clockwise', shortcut: '⇧⌘R', action: 'rotate-ccw' }
+    ]
+  }
+};

@@ -793,4 +793,32 @@ export function Notepad({ owner, initialPath }: NotepadProps) {
         </div>
     );
 }
+import { AppMenuConfig } from '../../types';
+
+export const notepadMenuConfig: AppMenuConfig = {
+    menus: ['File', 'Edit', 'Format', 'View', 'Window', 'Help'],
+    items: {
+        'File': [
+            { label: 'New', shortcut: '⌘N', action: 'new' },
+            { label: 'Open...', shortcut: '⌘O', action: 'open' },
+            { label: 'Save', shortcut: '⌘S', action: 'save' },
+            { type: 'separator' },
+            { label: 'Close Tab', shortcut: '⌘W', action: 'close-tab' },
+        ],
+        'Format': [
+            { label: 'Bold', shortcut: '⌘B', action: 'format-bold' },
+            { label: 'Italic', shortcut: '⌘I', action: 'format-italic' },
+            { label: 'List', shortcut: '⌘L', action: 'format-list' },
+            { type: 'separator' },
+            { label: 'Heading 1', action: 'format-h1' },
+            { label: 'Heading 2', action: 'format-h2' }
+        ],
+        'View': [
+            { label: 'Toggle Preview', shortcut: '⌘P', action: 'toggle-preview' },
+            { type: 'separator' },
+            { label: 'Zoom In', shortcut: '⌘+', action: 'zoom-in' },
+            { label: 'Zoom Out', shortcut: '⌘-', action: 'zoom-out' }
+        ]
+    }
+};
 
