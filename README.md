@@ -1,6 +1,6 @@
 # Aurora OS.js
 
-[![Version](https://img.shields.io/badge/Version-v0.7.6-blue)](https://github.com/mental-os/Aurora-OS.js) [![Build](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml/badge.svg?branch=nightly)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml) [![GitHub Pages](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml)
+[![Version](https://img.shields.io/badge/Version-v0.7.7-blue)](https://github.com/mental-os/Aurora-OS.js) ![Roadmap Status](<https://img.shields.io/badge/Roadmap-Stage%200%20(OS%20Foundation)-blue>) [![Build](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml/badge.svg?branch=nightly)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml) [![GitHub Pages](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml)
 
 A hacking game where the operating system is the game.
 
@@ -27,9 +27,11 @@ This isn’t a mockup — it’s a living system that can already be extended, s
 
 Aurora OS is developed in clear evolutionary steps:
 
-- **v1 — Game‑Ready OSCore OS polished into a natural, intuitive UX, with first game mechanics layered on top.**
-- v1.5 — Single‑Player Alpha (Steam) — A playable hacking experience built on the OS, focused on exploration, scripting, and progression.
-- v2 — Multiplayer Beta — Shared worlds, PvP/PvE systems, emergent player behavior.
+- **Stage 0 (0.x.x) — Foundation & Usability**: Functional desktop OS with real applications and natural usability.
+- **Stage 1 (1.x.x) — Single-Player Hacking Game**: Playable single-player hacking experience (Steam Early Access).
+- **Stage 2 (2.x.x) — Multiplayer Hacking World**: Persistent multiplayer hacking environment (Steamworks).
+
+### [View full roadmap](ROADMAP.md)
 
 The long‑term vision is an OS that feels real, but behaves like a game.
 
@@ -37,18 +39,18 @@ The long‑term vision is an OS that feels real, but behaves like a game.
 
 I’m deeply inspired by hacking and programming‑driven games:
 
-- Hackmud — brilliant multiplayer scripting
-- Grey Hack — ambitious PvP and persistence
-- Bitburner — elegant JavaScript sandboxing
-- else Heart.break() — unmatched atmosphere and immersion
+- [Hackmud](https://store.steampowered.com/app/469920/hackmud/) — brilliant multiplayer scripting
+- [Grey Hack](https://store.steampowered.com/app/605230/Grey_Hack/) — ambitious PvP and persistence
+- [Bitburner](https://github.com/bitburner-official/bitburner-src) — elegant JavaScript sandboxing
+- [else Heart.break()](https://store.steampowered.com/app/400110/Else_HeartBreak/) — unmatched atmosphere and immersion
 
 Each of them nailed something important — and each of them also felt like they stopped just short of broader reach or replayability.
 
-When I discovered OS.js, a thought clicked instantly:
+When I discovered [OS.js](https://github.com/os-js/OS.js), a thought clicked instantly:
 
 > What if the OS itself is the game engine?
 
-Aurora OS.js began as that experiment — inspired by OS.js and Puter, but reshaped into a game‑first system.
+Aurora OS.js began as that experiment — inspired by OS.js and [Puter](https://github.com/HeyPuter/puter), but reshaped into a game‑first system.
 
 ## 🧪 Current Status
 
@@ -84,7 +86,7 @@ npm run dev
 
 Or use the [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
 
-## Release Notes (v0.7.6)
+## Release Notes (v0.7.7)
 
 ### Security & Architecture Hardening
 
@@ -106,6 +108,10 @@ Or use the [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
 - **Enhanced Placeholder UI**: Replaced generic "Coming Soon" text with polished `EmptyState` components featuring app-specific iconography and descriptive messaging.
 - **Coverage**: Applied to placeholder apps (Mail, Calendar, Videos) and "Work in Progress" sections within Settings (Network, Security, Storage) and DevCenter.
 
+### Documentation
+
+- **Roadmap**: Added a new `ROADMAP.md` file that outlines the project's roadmap and future plans.
+
 ### [View full version history](HISTORY.md)
 
 ## 📝 License & Others
@@ -119,7 +125,7 @@ Or use the [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
 
 - [GitHub](https://github.com/mental-os/Aurora-OS.js)
 - [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
-- [GitBook](https://mental-os.gitbook.io/aurora-os.js) (soon)
+- GitBook (soon)
 
 ### License
 
