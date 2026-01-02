@@ -161,10 +161,7 @@ export function createUserHome(username: string, permissions: string = 'drwxr-x-
             {
                 name: 'Music',
                 type: 'directory',
-                children: [
-                    { name: 'Runway Electric.mp3', type: 'file', content: startupSound, size: 2048, owner: username, permissions: '-rw-r--r--' },
-                    { name: 'Lo-Fi Girl.mp3', type: 'file', content: startupSound2, size: 2048, owner: username, permissions: '-rw-r--r--' }
-                ],
+                children: [],
                 owner: username,
                 permissions: 'drwxr-xr-x'
             },

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Howl } from 'howler';
 import { Clock, PlayCircle, Music2, Play, Pause, SkipBack, SkipForward, Volume2, FolderOpen } from 'lucide-react';
 import { AppTemplate } from './AppTemplate';
@@ -153,9 +153,12 @@ export function Music({ owner, initialPath, onOpenApp }: MusicProps) {
     }
   }, [initialPath, windowContext?.data?.path, windowContext?.data?.timestamp, activeUser, getNodeAtPath, readFile, playSong, setActiveCategory]);
 
+  // Local Library State (Decoupled from Global Playlist to prevent Multi-User Loops)
+  const [items, setItems] = useState<Song[]>([]);
+
   // Derived state for view
-  // We filter library songs for the badge size and the main view
-  const librarySongs = songs.filter(s => s.path.startsWith('~/Music/'));
+  // We use local items for library view
+  const librarySongs = items;
 
   const displaySongs = activeCategory === 'recent'
     ? recent
@@ -166,11 +169,17 @@ export function Music({ owner, initialPath, onOpenApp }: MusicProps) {
   const progressBarRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
 
-  // 1. Scan ~/Music for songs and populate Library
+  // 1. Scan ~/Music for songs and populate Library View (Local)
   useEffect(() => {
-    // Only scan if playlist is empty? Or always to refresh?
-    // Let's always refresh for now.
-    const musicPath = resolvePath('~/Music', activeUser);
+    let musicPath = resolvePath('~/Music', activeUser);
+    let pathPrefix = '~/Music/';
+
+    // Fallback to Home if Music folder doesn't exist
+    if (!getNodeAtPath(musicPath, activeUser)) {
+      musicPath = resolvePath('~', activeUser);
+      pathPrefix = '~/';
+    }
+
     const files = listDirectory(musicPath, activeUser);
 
     if (files) {
@@ -183,7 +192,7 @@ export function Music({ owner, initialPath, onOpenApp }: MusicProps) {
         const meta = parseMetadata(file.name);
         return {
           id: file.id,
-          path: `~/Music/${file.name}`,
+          path: `${pathPrefix}${file.name}`,
           url: file.content || '',
           title: meta.title,
           artist: meta.artist,
@@ -191,54 +200,18 @@ export function Music({ owner, initialPath, onOpenApp }: MusicProps) {
           duration: '--:--'
         };
       });
-
-      // Update global playlist with Smart Merge
-      // We must preserve 'duration' from the current state if the song ID matches.
-      // We ALSO must preserve songs that are currently in the playlist but not on disk (ad-hoc files from playFile),
-      // otherwise scanning ~/Music will wipe them out.
-
-      // 1. Process Disk Songs (update metadata, keep duration)
-      const processedDiskSongs = parsedSongs.map(newSong => {
-        const existing = songs.find(s => s.id === newSong.id);
-        if (existing) {
-          // Preserve existing duration, but accept new metadata (title/artist/etc)
-          return { ...newSong, duration: existing.duration };
-        }
-        return newSong;
-      });
-
-      // 2. retain Ad-Hoc Songs (those in playlist but not found in scan)
-      // We only keep songs that are NOT in ~/Music. If a song thinks it is in ~/Music but isn't in the scan, it must have been deleted/moved.
-      const adHocSongs = songs.filter(s => {
-        const found = parsedSongs.find(p => p.id === s.id);
-        if (found) return false;
-
-        // Keep if:
-        // 1. It's an external file (not in ~/Music)
-        // 2. OR it is the currently playing song (prevent UI desync)
-        return !s.path.startsWith('~/Music/') || (currentSong?.id === s.id);
-      });
-
-      const mergedSongs = [...processedDiskSongs, ...adHocSongs];
-
-      // Check if anything actually changed to avoid infinite loops
-      // We check length and every field of every song
-      const hasChanged = mergedSongs.length !== songs.length || !mergedSongs.every((s, i) => {
-        const old = songs[i];
-        if (!old) return true;
-        return s.id === old.id &&
-          s.path === old.path &&
-          s.title === old.title &&
-          s.artist === old.artist &&
-          s.album === old.album &&
-          s.duration === old.duration;
-      });
-
-      if (hasChanged) {
-        setPlaylist(mergedSongs);
-      }
+      
+      // Update local library view
+      // Defer to next tick to avoid synchronous setState warning and improve perceived performance
+      setTimeout(() => {
+        setItems(parsedSongs);
+      }, 0);
+    } else {
+      setTimeout(() => {
+        setItems([]);
+      }, 0);
     }
-  }, [fileSystem, resolvePath, listDirectory, setPlaylist, songs, currentSong, activeUser]);
+  }, [fileSystem, resolvePath, listDirectory, activeUser, setItems, getNodeAtPath]);
 
 
   // Progressive Metadata Resolver
@@ -355,11 +328,17 @@ export function Music({ owner, initialPath, onOpenApp }: MusicProps) {
                   action={
                     <Button
                       variant="outline"
-                      onClick={() => onOpenApp?.('finder', { path: '~/Music' }, owner)}
+                      onClick={() => {
+                        const musicPath = resolvePath('~/Music', activeUser);
+                        const homePath = resolvePath('~', activeUser);
+                        // Check if ~/Music exists, otherwise default to Home
+                        const targetPath = getNodeAtPath(musicPath, activeUser) ? musicPath : homePath;
+                        onOpenApp?.('finder', { path: targetPath }, owner);
+                      }}
                       className="gap-2 border-white/20 text-white hover:bg-white/10"
                     >
                       <FolderOpen className="w-4 h-4" />
-                      Open Music Folder
+                      Open {getNodeAtPath(resolvePath('~/Music', activeUser), activeUser) ? 'Music' : 'Home'} Folder
                     </Button>
                   }
                 />
@@ -559,7 +538,7 @@ export function Music({ owner, initialPath, onOpenApp }: MusicProps) {
                 max={100}
                 step={1}
                 onValueChange={(vals) => setVolume(vals[0])}
-                className="w-20 md:w-24 [&_[data-slot=slider-track]]:!h-1 [&_[data-slot=slider-track]]:!bg-white/20 [&_[data-slot=slider-range]]:!bg-[var(--music-accent)] [&_[data-slot=slider-thumb]]:!bg-white [&_[data-slot=slider-thumb]]:!border-0 [&_[data-slot=slider-thumb]]:!shadow-sm"
+                className="w-20 md:w-24 **:data-[slot=slider-track]:h-1 **:data-[slot=slider-track]:bg-white/20 **:data-[slot=slider-range]:bg-(--music-accent) **:data-[slot=slider-thumb]:bg-white **:data-[slot=slider-thumb]:border-0 **:data-[slot=slider-thumb]:shadow-sm"
                 style={{ '--music-accent': accentColor } as React.CSSProperties}
               />
             </div>

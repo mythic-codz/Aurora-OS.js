@@ -3,7 +3,8 @@ import {
     parseSymbolicMode,
     octalToPermissions,
     parsePasswd,
-    formatPasswd
+    formatPasswd,
+    createUserHome
 } from '../utils/fileSystemUtils';
 
 describe('fileSystemUtils', () => {
@@ -65,6 +66,30 @@ user:1234:1000:1000:User:/home/user:/bin/bash`;
             const users = parsePasswd(passwdContent);
             const formatted = formatPasswd(users);
             expect(formatted).toBe(passwdContent);
+        });
+    });
+
+
+    describe('createUserHome', () => {
+        it('creates an empty home directory skeleton', () => {
+            const home = createUserHome('testuser');
+            expect(home.name).toBe('testuser');
+            expect(home.type).toBe('directory');
+            expect(home.owner).toBe('testuser');
+
+            // Check for standard folders
+            const folderNames = home.children?.map((c: any) => c.name);
+            expect(folderNames).toContain('Desktop');
+            expect(folderNames).toContain('Documents');
+            expect(folderNames).toContain('Downloads');
+            expect(folderNames).toContain('Music');
+            expect(folderNames).toContain('Pictures');
+            expect(folderNames).toContain('Videos');
+
+            // CRITICAL: Check that Music is empty (no default files)
+            const music = home.children?.find((c: any) => c.name === 'Music');
+            expect(music).toBeDefined();
+            expect(music?.children).toHaveLength(0);
         });
     });
 });

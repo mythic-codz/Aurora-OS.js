@@ -5,6 +5,7 @@ import {
   ReactNode,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import {
   FileNode,
@@ -41,7 +42,8 @@ export interface FileSystemContextType {
     path: string,
     name: string,
     content?: string,
-    asUser?: string
+    asUser?: string,
+    permissions?: string
   ) => boolean;
   createDirectory: (path: string, name: string, asUser?: string) => boolean;
   deleteNode: (path: string, asUser?: string) => boolean;
@@ -220,7 +222,8 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
       // Must use 'root' since /usr/bin is root-owned and requires root permissions
       const binaryContent = `#!app ${appId}`;
       // We execute the file creation as 'root' because the system is doing it on behalf of the admin user
-      const success = createFile("/usr/bin", appId, binaryContent, "root");
+      // Fix: Ensure binary is executable by everyone (-rwxr-xr-x / 755)
+      const success = createFile("/usr/bin", appId, binaryContent, "root", "-rwxr-xr-x");
       if (success) {
         notify.system(
           "success",
@@ -374,7 +377,7 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
     });
   }, [groups, setFileSystem]);
 
-  const value: FileSystemContextType = {
+  const value: FileSystemContextType = useMemo(() => ({
     fileSystem,
     isSafeMode,
     currentPath,
@@ -409,7 +412,42 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
     installApp,
     uninstallApp,
     isAppInstalled,
-  };
+  }), [
+    fileSystem,
+    isSafeMode,
+    currentPath,
+    currentUser,
+    users,
+    homePath,
+    setCurrentPath,
+    getNodeAtPath,
+    createFile,
+    createDirectory,
+    deleteNode,
+    addUser,
+    deleteUser,
+    writeFile,
+    readFile,
+    listDirectory,
+    moveNode,
+    moveNodeById,
+    moveToTrash,
+    emptyTrash,
+    resolvePath,
+    resetFileSystem,
+    login,
+    logout,
+    chmod,
+    chown,
+    verifyUserPassword,
+    groups,
+    addGroup,
+    deleteGroup,
+    installedApps,
+    installApp,
+    uninstallApp,
+    isAppInstalled,
+  ]);
 
   return (
     <FileSystemContext.Provider value={value}>

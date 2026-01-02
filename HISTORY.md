@@ -1,3 +1,19 @@
+## v0.7.8
+
+### Desktop & Filesystem Experience
+
+- **Multi-Selection**: Added drag-selection and key-down selection support in both Finder and Desktop.
+- **Enhanced Drag & Drop**: Fixed dragging multiple files between Finder and Desktop, ensuring seamless file management.
+- **Grid Fluency**: Improved Desktop grid logic for smoother icon snapping and collision handling.
+- **Smart User Provisioning**: New users (and Guest) now start with clean, empty home directories, while the default user retains sample content.
+
+### System Stability & Core
+
+- **App Store**: Fixed permission issues when launching newly installed apps via Terminal.
+- **Music App**: Fixed infinite scanning loops and improved directory targeting (`~/Music` or `~/`).
+- **Login Screen**: Polished user avatars to eliminate visual artifacts and improved UI consistency.
+- **Modern Standards**: Improved default support for ES2022 across the development environment.
+
 ## v0.7.7
 
 ### Security & Architecture Hardening

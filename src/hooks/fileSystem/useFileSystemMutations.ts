@@ -224,7 +224,7 @@ export function useFileSystemMutations({
         });
     }, [resolvePath, setFileSystem]);
 
-    const createFile = useCallback((path: string, name: string, content: string = '', asUser?: string): boolean => {
+    const createFile = useCallback((path: string, name: string, content: string = '', asUser?: string, permissions: string = '-rw-r--r--'): boolean => {
         const resolved = resolvePath(path);
         const node = getNodeAtPath(resolved, asUser);
         const actingUser = asUser ? users.find(u => u.username === asUser) || userObj : userObj;
@@ -241,7 +241,7 @@ export function useFileSystemMutations({
             size: content.length,
             modified: new Date(),
             owner: actingUser.username,
-            permissions: '-rw-r--r--',
+            permissions: permissions,
         };
         setFileSystem(prevFS => {
             const newFS = deepCloneFileSystem(prevFS);

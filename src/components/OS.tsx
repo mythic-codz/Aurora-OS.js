@@ -242,67 +242,82 @@ export default function OS() {
      * Persistence logic is also encapsulated there.
      */
 
-    const updateIconPosition = useCallback((id: string, position: { x: number; y: number }) => {
+    const updateIconsPositions = useCallback((updates: Record<string, { x: number; y: number }>) => {
         const config = getGridConfig(window.innerWidth, window.innerHeight);
-        const targetGridPos = pixelToGrid(position.x, position.y, config);
-        const targetCellKey = gridPosToKey(targetGridPos);
+        
+        // 1. Prepare maps
+        const newPositionsMap = { ...iconGridPositions };
+        const itemsToMoveIntoFolders: { id: string, folderName: string }[] = [];
+        const itemsToUpdateGrid: { id: string, gridPos: GridPosition }[] = [];
 
-        // Check if another icon occupies this grid cell
-        const conflictingIcon = desktopIcons.find(icon => {
-            const iconGridPos = iconGridPositions[icon.id];
-            // Check if grid positions match (excluding self)
-            return icon.id !== id && iconGridPos && gridPosToKey(iconGridPos) === targetCellKey;
-        });
+        // 2. First Pass: Check for Folder Drops and calculate initial Grid Targets
+        Object.entries(updates).forEach(([id, position]) => {
+             const targetGridPos = pixelToGrid(position.x, position.y, config);
+             const targetCellKey = gridPosToKey(targetGridPos);
 
-        if (conflictingIcon) {
-            // Check if conflicting item is a folder AND we are strictly overlapping the icon graphic
-            if (conflictingIcon.type === 'folder') {
+             // Check collision with existing folders (excluding self and other dragged items essentially)
+             // We check against the *entire* current desktopIcons list to find folders.
+             // If we drop ON A FOLDER, we move it.
+             
+             const conflictingIcon = desktopIcons.find(icon => {
+                const iconGridPos = iconGridPositions[icon.id];
+                // Must be different ID, and at the target cell
+                return icon.id !== id && iconGridPos && gridPosToKey(iconGridPos) === targetCellKey;
+             });
+
+             if (conflictingIcon && conflictingIcon.type === 'folder') {
                 const targetPixelPos = gridToPixel(iconGridPositions[conflictingIcon.id], config);
-
-                // Calculate centers (Icon graphic is roughly centered + offset)
                 const targetCenter = { x: targetPixelPos.x + 50, y: targetPixelPos.y + 50 };
                 const dragCenter = { x: position.x + 50, y: position.y + 50 };
-
                 const dx = targetCenter.x - dragCenter.x;
                 const dy = targetCenter.y - dragCenter.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
-                // If dropped close to center of folder (within 35px radius), move IT IN
                 if (distance < 35) {
-                    const sourceIcon = desktopIcons.find(i => i.id === id);
-                    if (sourceIcon) {
-                        const destParentPath = resolvePath(`~/Desktop/${conflictingIcon.name}`);
-                        moveNodeById(id, destParentPath);
-
-                        // Clean up grid position for moved item safely
-                        setIconGridPositions(prev => {
-                            const next = { ...prev };
-                            delete next[id];
-                            return next;
-                        });
-                        return;
-                    }
+                    itemsToMoveIntoFolders.push({ id, folderName: conflictingIcon.name });
+                    // Remove from grid map immediately if we are moving it away
+                    delete newPositionsMap[id]; 
+                    return; // Skip grid placement for this item
                 }
-            }
+             }
 
-            // Auto-rearrange: grid conflict detected but not moving into folder
-            const allIconIds = desktopIcons.map(i => i.id);
-            const newPositions = rearrangeGrid(
-                allIconIds,
-                iconGridPositions,
+             // If not moving into folder, it counts as a grid update
+             itemsToUpdateGrid.push({ id, gridPos: targetGridPos });
+             // Temporarily place it in the map for collision checks with *subsequent* items?
+             // Actually we should place them all, then resolving conflicts.
+             newPositionsMap[id] = targetGridPos;
+        });
+
+        // 3. Process Folder Moves
+        itemsToMoveIntoFolders.forEach(({ id, folderName }) => {
+            const destParentPath = resolvePath(`~/Desktop/${folderName}`);
+            moveNodeById(id, destParentPath);
+        });
+
+        // 4. Process Grid Collisions & Rearrangement
+        // We iterate through our proposed grid updates and verify if they collide with *static* items or *other dragged* items?
+        // Actually, rearrangeGrid handles shifting *others* out of the way.
+        // If we have multiple items, we should apply them sequentially or as a group?
+        // Sequential application on top of accumulated state is safest.
+        
+        let finalPositions = { ...newPositionsMap };
+        
+        itemsToUpdateGrid.forEach(({ id, gridPos }) => {
+            // Apply rearrangement for this single update against the *current accumulated* grid
+            // This ensures subsequent items in the batch see the shifted obstacles of previous items.
+            finalPositions = rearrangeGrid(
+                Object.keys(finalPositions), // All currently tracked IDs
+                finalPositions,
                 id,
-                targetGridPos,
+                gridPos,
                 windowSize.height,
                 config
             );
-            setIconGridPositions(newPositions);
-        } else {
-            // No conflict - just update the position
-            setIconGridPositions(prev => ({
-                ...prev,
-                [id]: targetGridPos
-            }));
-        }
+        });
+
+        // 5. Update State
+        setIconGridPositions(finalPositions);
+
     }, [desktopIcons, iconGridPositions, windowSize, resolvePath, moveNodeById]);
 
 
@@ -359,7 +374,7 @@ export default function OS() {
             <Desktop
                 onDoubleClick={() => { }}
                 icons={desktopIcons}
-                onUpdateIconPosition={updateIconPosition}
+                onUpdateIconsPositions={updateIconsPositions}
                 onIconDoubleClick={handleIconDoubleClick}
             />
 

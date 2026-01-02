@@ -26,7 +26,7 @@ const WALLPAPERS: Record<string, string> = {
 interface DesktopProps {
   onDoubleClick: () => void;
   icons: DesktopIcon[];
-  onUpdateIconPosition: (id: string, position: { x: number; y: number }) => void;
+  onUpdateIconsPositions: (updates: Record<string, { x: number; y: number }>) => void; // Batch update
   onIconDoubleClick: (iconId: string) => void;
 }
 
@@ -34,7 +34,7 @@ interface DesktopProps {
 const emptyImage = new Image();
 emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
-function DesktopComponent({ onDoubleClick, icons, onUpdateIconPosition, onIconDoubleClick }: DesktopProps) {
+function DesktopComponent({ onDoubleClick, icons, onUpdateIconsPositions, onIconDoubleClick }: DesktopProps) {
   const { accentColor, reduceMotion, disableShadows, wallpaper } = useAppContext();
   const { moveNodeById } = useFileSystem();
 
@@ -93,20 +93,30 @@ function DesktopComponent({ onDoubleClick, icons, onUpdateIconPosition, onIconDo
           const deltaX = e.clientX - dragStartPos.x;
           const deltaY = e.clientY - dragStartPos.y;
 
+          const updates: Record<string, { x: number; y: number }> = {};
+
           draggingIcons.forEach(id => {
             const icon = iconsRef.current.find(i => i.id === id);
             if (icon) {
               const newX = icon.position.x + deltaX;
               let newY = icon.position.y + deltaY;
               newY = Math.max(0, newY);
-              onUpdateIconPosition(id, { x: newX, y: newY });
+              updates[id] = { x: newX, y: newY };
             }
           });
+
+          if (Object.keys(updates).length > 0) {
+            onUpdateIconsPositions(updates);
+          }
         }
       }
       // Case 2: External Drop (Finder -> Desktop)
-      else if (data.id) {
-        moveNodeById(data.id, '~/Desktop');
+      else if (data.ids || data.id) {
+        const idsToMove: string[] = data.ids || [data.id];
+
+        idsToMove.forEach(id => {
+           moveNodeById(id, '~/Desktop');
+        });
       }
     } catch (err) {
       console.error('Failed to handle desktop drop', err);
@@ -185,7 +195,7 @@ function DesktopComponent({ onDoubleClick, icons, onUpdateIconPosition, onIconDo
   const handleIconMouseDown = (e: React.MouseEvent, iconId: string) => {
     e.stopPropagation();
     const newSelection = new Set(selectedIcons);
-    if (e.ctrlKey || e.shiftKey) {
+    if (e.ctrlKey || e.shiftKey || e.metaKey) {
       if (newSelection.has(iconId)) newSelection.delete(iconId);
       else newSelection.add(iconId);
     } else {
@@ -216,6 +226,7 @@ function DesktopComponent({ onDoubleClick, icons, onUpdateIconPosition, onIconDo
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('application/json', JSON.stringify({
       id: icon.id,
+      ids: itemsToDrag, // Multi-item support
       name: icon.name,
       type: icon.type === 'folder' ? 'directory' : 'file',
       source: 'desktop'

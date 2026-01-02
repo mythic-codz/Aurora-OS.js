@@ -189,7 +189,7 @@ export function LoginScreen() {
                     /* Password / Login Stage */
                     <div className="w-full flex flex-col items-center animate-in fade-in zoom-in-95 duration-300">
                         <div className="relative mb-6">
-                            <div className="w-24 h-24 rounded-full bg-linear-to-br from-slate-400 to-slate-600 flex items-center justify-center shadow-2xl border-4 border-white/10">
+                            <div className="w-24 h-24 rounded-full bg-linear-to-br from-slate-400 to-slate-600 flex items-center justify-center shadow-2xl ring-4 ring-white/10 overflow-hidden">
                                 <span className="text-4xl font-bold text-white uppercase">{selectedUser.fullName.charAt(0)}</span>
                             </div>
                         </div>

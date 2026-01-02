@@ -11,31 +11,6 @@ Versioning follows semantic principles _(explained at the bottom)_:
 - **1.x.x** → Playable single-player hacking game _(Steam Early Access)_
 - **2.x.x** → Persistent multiplayer hacking world _(Steamworks)_
 
-## Table of Contents
-
-- [Vision](#vision)
-- [Stage 0 — Foundation & Usability (`0.x.x`)](#stage-0-foundation-usability-0xx)
-  - [Goal](#goal-1)
-  - [Success Criteria](#success-criteria-1)
-  - [Core Deliverables](#core-deliverables-1)
-  - [Milestones](#milestones-1)
-- [Stage 1 — Single-Player Hacking Game (`1.x.x`)](#stage-1-single-player-hacking-game-1xx)
-  - [Goal](#goal-2)
-  - [Success Criteria](#success-criteria-2)
-  - [Core Deliverables](#core-deliverables-2)
-  - [Milestones](#milestones-2)
-- [Stage 2 — Multiplayer Hacking World (`2.x.x`)](#stage-2-multiplayer-hacking-world-2xx)
-  - [Goal](#goal-3)
-  - [Success Criteria](#success-criteria-3)
-  - [Core Deliverables](#core-deliverables-3)
-  - [Milestones](#milestones-3)
-- [Version Number Meaning](#version-number-meaning)
-  - [MAJOR (`x.0.0`)](#major-x00)
-  - [MINOR (`x.y.0`)](#minor-xy0)
-  - [PATCH (`x.y.z`)](#patch-xyz)
-- [Development Phases & Milestones](#development-phases--milestones)
-- [Commit → Version Mapping](#commit-→-version-mapping-guideline)
-
 ---
 
 ## 🚦 Stage 0 — Foundation & Usability (`0.x.x`)
@@ -49,8 +24,8 @@ Deliver a **functional desktop OS** with real applications and natural usability
 
 ### Success Criteria
 
-- Desktop interaction feels natural (windows, drag & drop, file handling)
-- Core apps are fully functional (no placeholders)
+- Desktop interaction feels natural _(windows, drag & drop, file handling)_
+- Core apps are fully functional _(no placeholders)_
 - Persistent filesystem with configurable users
 - Stable and repeatable onboarding / first-boot experience
 
@@ -92,7 +67,7 @@ Deliver a **functional desktop OS** with real applications and natural usability
 ## 🎮 Stage 1 — Single-Player Hacking Game (`1.x.x`)
 
 **Versions:** `1.0.0 → 1.9.x`  
-**Distribution:** Steam Early Access (single-player only)
+**Distribution:** Steam Early Access _(single-player only)_
 
 ### Goal
 
@@ -100,7 +75,7 @@ Transform Aurora OS into a **playable single-player hacking game**, built direct
 
 ### Success Criteria
 
-- Complete single-player gameplay loop (start → progression → end state)
+- Complete single-player gameplay loop _(start → progression → end state)_
 - OS and game mechanics integrate naturally
 - Player progression and objectives are clear and coherent
 
@@ -133,7 +108,7 @@ Transform Aurora OS into a **playable single-player hacking game**, built direct
 
 ### Milestones
 
-- `1.0.0` — Fully playable single-player experience (Steam Early Access launch)
+- `1.0.0` — Fully playable single-player experience _(Steam Early Access launch)_
 - `1.3.0` — Expanded hacking systems
 - `1.7.0` — Content-complete and polished
 - `1.9.x` — Stable, public-ready single-player
@@ -142,7 +117,7 @@ Transform Aurora OS into a **playable single-player hacking game**, built direct
 
 ## 🌐 Stage 2 — Multiplayer Hacking World (`2.x.x`)
 
-**Distribution:** Steam (Steamworks-powered)
+**Distribution:** Steam _(Steamworks-powered)_
 
 ### Goal
 
@@ -193,7 +168,7 @@ Incremented when **fundamental system paradigms change**.
 This includes:
 
 - Breaking changes to internal or external APIs
-- Core architecture rewrites (filesystem, runtime, process model)
+- Core architecture rewrites _(filesystem, runtime, process model)_
 - Major UX paradigm shifts
 - Removal or redesign of existing core systems
 - Any change that breaks backward compatibility

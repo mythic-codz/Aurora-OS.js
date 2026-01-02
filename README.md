@@ -1,6 +1,6 @@
 # Aurora OS.js
 
-[![Version](https://img.shields.io/badge/Version-v0.7.7-blue)](https://github.com/mental-os/Aurora-OS.js) ![Roadmap Status](<https://img.shields.io/badge/Roadmap-Stage%200%20(OS%20Foundation)-blue>) [![Build](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml/badge.svg?branch=nightly)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml) [![GitHub Pages](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml)
+[![Version](https://img.shields.io/badge/Version-v0.7.8-blue)](https://github.com/mental-os/Aurora-OS.js) ![Roadmap Status](<https://img.shields.io/badge/Roadmap-Stage%200%20(OS%20Foundation)-blue>) [![Build](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml/badge.svg?branch=nightly)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml) [![GitHub Pages](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml)
 
 ![Social media image for Aurora OS.js hacking simulator game project](.github/openGraph.jpg)
 
@@ -84,31 +84,21 @@ npm run dev
 
 Or use the [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
 
-## Release Notes (v0.7.7)
+## Release Notes (v0.7.8)
 
-### Security & Architecture Hardening
+### Desktop & Filesystem Experience
 
-- **Verified Integrity**: Implemented strict GitHub commit signing (SSH) and branch protection rules.
-- **Code Security**: Fixed CodeQL alerts (Regex Injection, XSS) and sanitized filesystem operations.
-- **Modern Core**: Upgraded to **ESNext / Node 25** standards with fully strict TypeScript configuration.
+- **Multi-Selection**: Added drag-selection and key-down selection support in both Finder and Desktop.
+- **Enhanced Drag & Drop**: Fixed dragging multiple files between Finder and Desktop, ensuring seamless file management.
+- **Grid Fluency**: Improved Desktop grid logic for smoother icon snapping and collision handling.
+- **Smart User Provisioning**: New users (and Guest) now start with clean, empty home directories, while the default user retains sample content.
 
-### Window Management
+### System Stability & Core
 
-- **Maximize**: Fixed a bug where maximizing a window would not cover the entire screen.
-
-### Modular Menu System
-
-- **Per-App Menu Configurations**: Fully modularized the menu bar architecture. Applications now define their own specific menus (File, Edit, View, etc.) and actions, replaced the monolithic hardcoded system with a flexible `AppMenuConfig` registry.
-- **Dynamic Action Dispatching**: Menu items now dispatch standardized `app-menu-action` events, allowing individual apps to handle commands like "Save", "Rotate", or "Play" without tightly coupling to the system shell.
-
-### Polished Empty States
-
-- **Enhanced Placeholder UI**: Replaced generic "Coming Soon" text with polished `EmptyState` components featuring app-specific iconography and descriptive messaging.
-- **Coverage**: Applied to placeholder apps (Mail, Calendar, Videos) and "Work in Progress" sections within Settings (Network, Security, Storage) and DevCenter.
-
-### Documentation
-
-- **Roadmap**: Added a new `ROADMAP.md` file that outlines the project's roadmap and future plans.
+- **App Store**: Fixed permission issues when launching newly installed apps via Terminal.
+- **Music App**: Fixed infinite scanning loops and improved directory targeting (`~/Music` or `~/`).
+- **Login Screen**: Polished user avatars to eliminate visual artifacts and improved UI consistency.
+- **Modern Standards**: Improved default support for ES2022 across the development environment.
 
 ### [View full version history](HISTORY.md)
 
