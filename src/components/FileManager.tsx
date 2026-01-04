@@ -31,7 +31,7 @@ import { useElementSize } from '../hooks/useElementSize';
 import { FileIcon } from './ui/FileIcon';
 import { cn } from './ui/utils';
 import { feedback } from '../services/soundFeedback';
-import { useI18n } from '../i18n';
+import { useI18n } from '../i18n/index';
 
 interface BreadcrumbPillProps {
   name: string;

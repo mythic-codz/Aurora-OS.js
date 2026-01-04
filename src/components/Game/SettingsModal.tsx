@@ -6,7 +6,7 @@ import { cn } from '../ui/utils';
 import { feedback } from '../../services/soundFeedback';
 import { soundManager } from '../../services/sound';
 import { useFileSystem } from '../FileSystemContext';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 import { useFullscreen } from '../../hooks/useFullscreen';
 
 interface SettingsModalProps {

@@ -7,12 +7,11 @@ import { feedback } from '../services/soundFeedback';
 import { hasSavedSession, clearSession, softReset } from '../utils/memory';
 
 import { useAppContext } from './AppContext';
-import { useI18n } from '../i18n';
-import { SUPPORTED_LOCALES } from '../i18n/translations';
+import { useI18n } from '../i18n/index';
 
 export function LoginScreen() {
     const { users, login, currentUser, logout, resetFileSystem } = useFileSystem();
-    const { exposeRoot, accentColor, isLocked, setIsLocked, locale, setLocale, onboardingComplete, setOnboardingComplete } = useAppContext();
+    const { exposeRoot, accentColor, isLocked, setIsLocked } = useAppContext();
     const { t } = useI18n();
 
     // If locked, default to current user
@@ -115,7 +114,7 @@ export function LoginScreen() {
         }
     };
 
-    const showLanguageOnboarding = !onboardingComplete;
+
 
     return (
         <GameScreenLayout
@@ -148,57 +147,7 @@ export function LoginScreen() {
         >
             {/* User Selection / Login Container */}
             <div className="w-full max-w-md flex flex-col items-center">
-                {showLanguageOnboarding ? (
-                    <div className="w-full flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <h2 className="text-white/90 text-center mb-1 text-lg font-medium">{t('onboarding.title')}</h2>
-                        <p className="text-white/50 text-center text-sm mb-2">{t('onboarding.subtitle')}</p>
-
-                        <div className="grid grid-cols-1 gap-3 px-2">
-                            {SUPPORTED_LOCALES.map((opt) => {
-                                const active = locale === opt.locale;
-                                return (
-                                    <button
-                                        key={opt.locale}
-                                        onClick={() => {
-                                            feedback.click();
-                                            setLocale(opt.locale);
-                                        }}
-                                        className={cn(
-                                            "flex items-center justify-between gap-4 p-4 rounded-xl transition-all duration-200",
-                                            "bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/30 backdrop-blur-md",
-                                            active && "border-white/50"
-                                        )}
-                                        style={active ? { borderColor: accentColor } : undefined}
-                                    >
-                                        <span className="text-white font-medium">{opt.label}</span>
-                                        {active ? (
-                                            <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border"
-                                                style={{ borderColor: accentColor, color: accentColor, backgroundColor: `${accentColor}1A` }}
-                                            >
-                                                {t('onboarding.ok')}
-                                            </span>
-                                        ) : null}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        <button
-                            onClick={() => {
-                                feedback.click();
-                                setOnboardingComplete(true);
-                            }}
-                            className={cn(
-                                "w-full py-3 px-6 rounded-xl font-medium text-white shadow-lg transition-all mt-2",
-                                "active:scale-95 disabled:opacity-50 disabled:active:scale-100",
-                                "flex items-center justify-center gap-2"
-                            )}
-                            style={{ backgroundColor: accentColor, filter: 'brightness(1.1)' }}
-                        >
-                            {t('onboarding.continue')} <ArrowRight className="w-4 h-4 ml-1" />
-                        </button>
-                    </div>
-                ) : !selectedUser ? (
+                {!selectedUser ? (
                     <div className="w-full flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <h2 className="text-white/80 text-center mb-4 text-lg font-medium">{t('login.selectUser')}</h2>
                         <div className="grid grid-cols-1 gap-3 max-h-[400px] overflow-y-auto px-2">
@@ -381,3 +330,4 @@ export function LoginScreen() {
         </GameScreenLayout>
     );
 }
+

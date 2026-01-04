@@ -11,7 +11,7 @@ import { cn } from '../ui/utils';
 import { Slider } from '../ui/slider';
 import { Button } from '../ui/button';
 import { EmptyState } from '../ui/empty-state';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 type TFn = (key: string, vars?: Record<string, string | number>) => string;
 

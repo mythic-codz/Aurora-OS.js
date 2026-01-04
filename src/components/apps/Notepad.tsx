@@ -73,7 +73,7 @@ interface Tab {
 import { useAppContext } from '../AppContext';
 import { useWindow } from '../WindowContext';
 import { STORAGE_KEYS } from '../../utils/memory';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 // ... interface
 
@@ -504,7 +504,7 @@ export function Notepad({ owner, initialPath }: NotepadProps) {
                                                 : 'text-white/40 hover:text-white/80 hover:bg-white/5'}
                                         `}
                                     >
-                                        <FileText className={`w-3.5 h-3.5 flex-shrink-0 ${activeTabId === tab.id ? 'opacity-100' : 'opacity-50 group-hover:opacity-80'}`} />
+                                        <FileText className={`w-3.5 h-3.5 shrink-0 ${activeTabId === tab.id ? 'opacity-100' : 'opacity-50 group-hover:opacity-80'}`} />
                                         <span className={`truncate flex-1 ${tab.isModified ? 'italic' : ''}`}>
                                             {tab.name}{tab.isModified ? '*' : ''}
                                         </span>
@@ -687,7 +687,7 @@ export function Notepad({ owner, initialPath }: NotepadProps) {
                                     </div>
                                 </PopoverTrigger>
                                 <PopoverContent
-                                    className="w-[200px] p-0 z-[10001]"
+                                    className="w-[200px] p-0 z-10001"
                                     align="end"
                                     style={{
                                         background: 'rgba(28, 28, 30, 0.95)',

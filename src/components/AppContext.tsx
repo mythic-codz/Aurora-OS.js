@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { STORAGE_KEYS } from '../utils/memory';
+import { SUPPORTED_LOCALES } from '../i18n/translations';
 
 type ThemeMode = 'neutral' | 'shades' | 'contrast';
 
@@ -75,6 +77,12 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 
 function detectDefaultLocale(): AppLocale {
   try {
+    // Check for saved language (e.g. from Onboarding recovery)
+    const saved = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
+    if (saved && SUPPORTED_LOCALES.some(l => l.locale === saved)) {
+      return saved;
+    }
+
     const navLang = typeof navigator !== 'undefined' ? navigator.language : undefined;
     return navLang || 'en-US';
   } catch {

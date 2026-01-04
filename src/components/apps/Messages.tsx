@@ -6,7 +6,7 @@ import { useSessionStorage } from '../../hooks/useSessionStorage';
 import { useElementSize } from '../../hooks/useElementSize';
 import { cn } from '../ui/utils';
 import { GlassInput } from '../ui/GlassInput';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 export function Messages({ owner }: { owner?: string }) {
   const { t } = useI18n();
@@ -115,7 +115,7 @@ export function Messages({ owner }: { owner?: string }) {
                 title={isCompact ? conversation.name : undefined}
               >
                 <div className="relative">
-                  <div className={`w-12 h-12 rounded-full ${conversation.avatar} flex items-center justify-center text-white flex-shrink-0`}>
+                  <div className={`w-12 h-12 rounded-full ${conversation.avatar} flex items-center justify-center text-white shrink-0`}>
                     {conversation.name[0]}
                   </div>
                   {conversation.unread > 0 && (
@@ -164,7 +164,7 @@ export function Messages({ owner }: { owner?: string }) {
                 >
                   <div className="flex flex-col gap-1 min-w-0" style={{ alignItems: isMe ? 'flex-end' : 'flex-start' }}>
                     <div
-                      className="px-4 py-2 rounded-2xl max-w-[85%] break-words whitespace-pre-wrap"
+                      className="px-4 py-2 rounded-2xl max-w-[85%] wrap-break-word whitespace-pre-wrap"
                       style={{
                         backgroundColor: isMe ? accentColor : 'rgba(75, 85, 99, 0.4)',
                         color: 'white',
@@ -195,7 +195,7 @@ export function Messages({ owner }: { owner?: string }) {
                 />
               </div>
               <button
-                className="w-10 h-10 rounded-full flex items-center justify-center text-white transition-all hover:opacity-90 flex-shrink-0 shadow-lg"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white transition-all hover:opacity-90 shrink-0 shadow-lg"
                 style={{ backgroundColor: accentColor }}
               >
                 <Send className="w-4 h-4 ml-0.5" />

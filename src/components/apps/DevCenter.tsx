@@ -9,7 +9,7 @@ import { notify } from '../../services/notifications';
 import { feedback } from '../../services/soundFeedback';
 import { getStorageStats, formatBytes } from '../../utils/memory';
 import { useFileSystem } from '../../components/FileSystemContext';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 export function DevCenter() {
     const { fileSystem, resetFileSystem } = useFileSystem();
@@ -273,13 +273,13 @@ export function DevCenter() {
                                             >
                                                 <div className="flex items-center gap-3 overflow-hidden flex-1">
                                                     {isExpanded ? (
-                                                        <ChevronDown className="w-4 h-4 text-white/50 flex-shrink-0" />
+                                                        <ChevronDown className="w-4 h-4 text-white/50 shrink-0" />
                                                     ) : (
-                                                        <ChevronRight className="w-4 h-4 text-white/50 flex-shrink-0" />
+                                                        <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
                                                     )}
                                                     <div className="font-mono text-xs text-white/70 truncate" title={key}>{key}</div>
                                                 </div>
-                                                <div className="flex items-center gap-4 flex-shrink-0">
+                                                <div className="flex items-center gap-4 shrink-0">
                                                     <div className="text-xs text-white/30 whitespace-nowrap">
                                                         {formatBytes(new Blob([rawValue]).size)}
                                                     </div>
@@ -297,7 +297,7 @@ export function DevCenter() {
                                                 </div>
                                             </div>
                                             {isExpanded && (
-                                                <div className="bg-black/40 border-t border-white/5 p-3 relative group/code bg-slate-950/50">
+                                                <div className="bg-black/40 border-t border-white/5 p-3 relative group/code">
                                                     <pre className="font-mono text-[11px] text-blue-300 whitespace-pre-wrap break-all pr-8 max-h-[300px] overflow-y-auto">
                                                         {formattedValue}
                                                     </pre>

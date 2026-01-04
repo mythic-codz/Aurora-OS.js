@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, RotateCw, Home, Star, Lock, X } from 'lucide
 import { AppTemplate } from './AppTemplate';
 import { useAppStorage } from '../../hooks/useAppStorage';
 import { cn } from '../ui/utils';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 const quickLinks = [
   { id: 1, name: 'GitHub', color: 'bg-gray-900' },

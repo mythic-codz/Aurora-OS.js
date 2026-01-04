@@ -247,3 +247,4 @@ export function getDockApps(installedAppIds: Set<string>): AppMetadata[] {
 export function getAppsByCategory(category: AppMetadata['category']): AppMetadata[] {
     return getAllApps().filter(app => app.category === category);
 }
+

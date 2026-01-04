@@ -105,10 +105,48 @@ export const es: TranslationDict = {
     description: 'Busca un comando para ejecutar...',
   },
   onboarding: {
-    title: 'Elige tu idioma',
-    subtitle: 'Puedes cambiarlo más tarde en Configuración.',
-    continue: 'Continuar',
-    ok: 'OK',
+    steps: {
+      language: {
+        title: 'Bienvenido a Aurora',
+        description: 'Selecciona tu idioma para comenzar',
+      },
+      account: {
+        title: 'Crea tu cuenta',
+        description: 'Configura la cuenta de administrador principal',
+      },
+      theme: {
+        title: 'Personalizar',
+        description: 'Hazlo tuyo',
+      },
+      finishing: {
+        title: 'Configurando...',
+        description: 'Aplicando configuración',
+      },
+    },
+    account: {
+      fullName: 'Nombre completo',
+      fullNamePlaceholder: 'Ejemplo: Juan Pérez',
+      username: 'Usuario',
+      password: 'Contraseña',
+      passwordHint: 'Pista de contraseña (Opcional)',
+      passwordHintPlaceholder: 'Ejemplo: Nombre de tu primera mascota',
+    },
+    theme: {
+      mode: 'Modo de tema',
+      accentColor: 'Color de acento',
+      darkMode: 'Oscuro (Neutro)',
+      lightMode: 'Claro',
+      comingSoon: 'Próximamente',
+    },
+    finishing: {
+      title: "¡Todo listo!",
+      subtitle: 'Aurora OS está listo. Redirigiéndote a la pantalla de inicio de sesión...',
+    },
+    buttons: {
+      next: 'Siguiente',
+      back: 'Atrás',
+      startUsing: 'Empezar a usar Aurora',
+    },
   },
   login: {
     softReset: 'Reinicio suave',
@@ -336,6 +374,106 @@ export const es: TranslationDict = {
     menu: {
       newTab: 'Nueva pestaña',
       clearScrollback: 'Limpiar historial',
+    },
+    help: {
+      availableCommands: 'Comandos disponibles:',
+      usage: 'Uso',
+      appLaunchHelp: 'Lanzar aplicaciones instaladas (p. ej. Finder)',
+    },
+    commands: {
+      help: {
+        description: 'Mostrar este mensaje de ayuda',
+      },
+      ls: {
+        description: 'Listar contenido del directorio',
+        usage: 'ls [camino]',
+      },
+      cd: {
+        description: 'Cambiar directorio',
+        usage: 'cd <camino>',
+      },
+      pwd: {
+        description: 'Imprimir directorio de trabajo',
+      },
+      clear: {
+        description: 'Limpiar la pantalla del terminal',
+      },
+      logout: {
+        description: 'Cerrar la sesión actual',
+      },
+      who: {
+        description: 'Mostrar quién ha iniciado sesión',
+      },
+      cat: {
+        description: 'Mostrar contenido del archivo',
+        usage: 'cat <archivo>',
+      },
+      mkdir: {
+        description: 'Crear directorio',
+        usage: 'mkdir <nombre>',
+      },
+      touch: {
+        description: 'Crear archivo o actualizar marca de tiempo',
+        usage: 'touch <nombre>',
+      },
+      rm: {
+        description: 'Eliminar archivo o directorio',
+        usage: 'rm <nombre>',
+      },
+      cp: {
+        description: 'Copiar archivos',
+        usage: 'cp <origen> <destino>',
+      },
+      mv: {
+        description: 'Mover (renombrar) archivos',
+        usage: 'mv <origen> <destino>',
+      },
+      chmod: {
+        description: 'Cambiar modos (permisos) de archivo',
+        usage: 'chmod <modo> <archivo>',
+      },
+      chown: {
+        description: 'Cambiar propietario y grupo del archivo',
+        usage: 'chown <propietario>[:<grupo>] <archivo>',
+      },
+      grep: {
+        description: 'Imprimir líneas que coincidan con un patrón',
+        usage: 'grep <patrón> <archivo>',
+      },
+      find: {
+        description: 'Buscar archivos en una jerarquía de directorios',
+        usage: 'find [camino] [-name patrón]',
+      },
+      echo: {
+        description: 'Mostrar una línea de texto',
+        usage: 'echo [texto]',
+      },
+      date: {
+        description: 'Imprimir la fecha y hora del sistema',
+      },
+      uptime: {
+        description: 'Indicar cuánto tiempo ha estado funcionando el sistema',
+      },
+      whoami: {
+        description: 'Imprimir usuario actual',
+      },
+      hostname: {
+        description: 'Imprimir nombre del sistema',
+      },
+      reset: {
+        description: 'Restablecer sistema de archivos a valores de fábrica',
+      },
+      exit: {
+        description: 'Salir de la sesión de shell actual',
+      },
+      su: {
+        description: 'Cambiar ID de usuario o convertirse en superusuario',
+        usage: 'su [usuario] [contraseña]',
+      },
+      sudo: {
+        description: 'Ejecutar un comando como otro usuario',
+        usage: 'sudo [opciones] [comando]',
+      },
     },
   },
   placeholderApp: {

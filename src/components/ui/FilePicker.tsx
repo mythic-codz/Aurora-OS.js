@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { checkPermissions } from '../../utils/fileSystemUtils';
 import { BreadcrumbPill } from './BreadcrumbPill';
 import { ResponsiveGrid } from './ResponsiveGrid';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 interface FilePickerProps {
     isOpen: boolean;
@@ -267,7 +267,7 @@ export function FilePicker({ isOpen, onClose, onSelect, mode, title, defaultPath
                                 style={{
                                     '--accent-color': accentColor,
                                 } as React.CSSProperties}
-                                className="h-8 border-[var(--accent-color)] text-[var(--accent-color)] hover:bg-[var(--accent-color)] hover:text-white px-4 rounded-md bg-transparent transition-all duration-200"
+                                className="h-8 border-(--accent-color) text-(--accent-color) hover:bg-(--accent-color) hover:text-white px-4 rounded-md bg-transparent transition-all duration-200"
                             >
                                 {t('filePicker.cancel')}
                             </Button>

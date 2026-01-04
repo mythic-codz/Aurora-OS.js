@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { useAppContext } from './AppContext';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { useState } from 'react';
-import { useI18n } from '../i18n';
+import { useI18n } from '../i18n/index';
 
 export function NotificationCenter() {
   const { accentColor, reduceMotion, disableShadows } = useAppContext();
@@ -58,7 +58,7 @@ export function NotificationCenter() {
       </PopoverTrigger>
 
       <PopoverContent
-        className={`w-96 p-0 overflow-hidden border-white/20 rounded-2xl ${!disableShadows ? 'shadow-2xl' : 'shadow-none'} ${reduceMotion ? '!animate-none !duration-0' : ''}`}
+        className={`w-96 p-0 overflow-hidden border-white/20 rounded-2xl ${!disableShadows ? 'shadow-2xl' : 'shadow-none'} ${reduceMotion ? 'animate-none! duration-0!' : ''}`}
         style={{ background: getBackgroundColor(0.8), ...blurStyle }}
         align="end"
         sideOffset={12}
@@ -89,7 +89,7 @@ export function NotificationCenter() {
                 transition={{ delay: reduceMotion ? 0 : notification.id * 0.05 }}
               >
                 <div className="flex gap-3">
-                  <div className={`flex-shrink-0 ${notification.color}`}>
+                  <div className={`shrink-0 ${notification.color}`}>
                     <notification.icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">

@@ -1,7 +1,7 @@
 import { Mail, Calendar, LucideIcon, FileQuestion } from 'lucide-react';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import { EmptyState } from '../ui/empty-state';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 interface PlaceholderAppProps {
     title: string;

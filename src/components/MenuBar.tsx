@@ -23,7 +23,7 @@ import { Badge } from './ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 import { getApp } from '../config/appRegistry';
-import { useI18n } from '../i18n';
+import { useI18n } from '../i18n/index';
 
 interface MenuBarProps {
   focusedApp?: string | null;
@@ -225,7 +225,7 @@ function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
 
   return (
     <div
-      className={cn("absolute top-0 left-0 right-0 h-7 border-b border-white/10 flex items-center justify-between px-2 z-[9999]")}
+      className={cn("absolute top-0 left-0 right-0 h-7 border-b border-white/10 flex items-center justify-between px-2 z-9999")}
       style={{ background: menuBarBackground, ...blurStyle }}
     >
       {/* Left side */}
@@ -243,7 +243,7 @@ function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
             <CreditsDrawer isOpen={showCredits} onClose={() => setShowCredits(false)} />
 
             <MenubarContent
-              className={cn("border-white/10 text-white min-w-[14rem] p-1 z-[10000]", !disableShadows ? "shadow-xl" : "shadow-none")}
+              className={cn("border-white/10 text-white min-w-56 p-1 z-10000", !disableShadows ? "shadow-xl" : "shadow-none")}
               style={{ background: getBackgroundColor(0.8), ...blurStyle }}
             >
               <Tooltip>
@@ -342,17 +342,17 @@ function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
 
           <MenubarMenu>
             <MenubarTrigger className="font-semibold text-xs px-0 data-[state=open]:text-white focus:text-white rounded-sm h-7 items-center flex transition-colors hover:text-white/80">
-              {appConfig.name}
+              {activeApp?.nameKey ? t(activeApp.nameKey) : appConfig.name}
             </MenubarTrigger>
             <MenubarContent
-              className={cn("border-white/10 text-white min-w-[14rem] p-1 z-[10000]", !disableShadows ? "shadow-xl" : "shadow-none")}
+              className={cn("border-white/10 text-white min-w-56 p-1 z-10000", !disableShadows ? "shadow-xl" : "shadow-none")}
               style={{ background: getBackgroundColor(0.8), ...blurStyle }}
             >
-              <MenubarItem>{t('menubar.app.aboutApp', { appName: appConfig.name })}</MenubarItem>
+              <MenubarItem>{t('menubar.app.aboutApp', { appName: activeApp?.nameKey ? t(activeApp.nameKey) : appConfig.name })}</MenubarItem>
               <MenubarSeparator className="bg-white/10" />
               <MenubarItem>{t('menubar.app.settings')}</MenubarItem>
               <MenubarSeparator className="bg-white/10" />
-              <MenubarItem>{t('menubar.app.quitApp', { appName: appConfig.name })}</MenubarItem>
+              <MenubarItem>{t('menubar.app.quitApp', { appName: activeApp?.nameKey ? t(activeApp.nameKey) : appConfig.name })}</MenubarItem>
             </MenubarContent>
           </MenubarMenu>
 
@@ -373,7 +373,7 @@ function MenuBarComponent({ focusedApp, onOpenApp }: MenuBarProps) {
               </MenubarTrigger>
               {menu !== 'DEV Center' && (
                 <MenubarContent
-                  className={cn("border-white/10 text-white min-w-[12rem] p-1 z-[10000]", !disableShadows ? "shadow-xl" : "shadow-none")}
+                  className={cn("border-white/10 text-white min-w-48 p-1 z-10000", !disableShadows ? "shadow-xl" : "shadow-none")}
                   style={{ background: getBackgroundColor(0.8), ...blurStyle }}
                 >
                   {renderMenuContent(menu)}

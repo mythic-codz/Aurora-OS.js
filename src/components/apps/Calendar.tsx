@@ -30,7 +30,7 @@ import { useAppContext } from '../AppContext';
 import { useFileSystem } from '../FileSystemContext';
 import { STORAGE_KEYS } from '../../utils/memory';
 import { toast } from 'sonner';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 // --- Types ---
 

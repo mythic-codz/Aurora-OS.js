@@ -104,12 +104,7 @@ export const en: TranslationDict = {
     title: 'Command Palette',
     description: 'Search for a command to run...',
   },
-  onboarding: {
-    title: 'Choose your language',
-    subtitle: 'You can change this later in Settings.',
-    continue: 'Continue',
-    ok: 'OK',
-  },
+
   login: {
     softReset: 'Soft Reset',
     hardReset: 'Hard Reset',
@@ -335,6 +330,103 @@ export const en: TranslationDict = {
     menu: {
       newTab: 'New Tab',
       clearScrollback: 'Clear Scrollback',
+    },
+    help: {
+      availableCommands: 'Available commands:',
+      usage: 'Usage',
+      appLaunchHelp: 'Launch installed applications (e.g. Finder)',
+    },
+    commands: {
+      help: {
+        description: 'Show this help message',
+      },
+      ls: {
+        description: 'List directory contents',
+        usage: 'ls [path]',
+      },
+      cd: {
+        description: 'Change directory',
+        usage: 'cd <path>',
+      },
+      pwd: {
+        description: 'Print working directory',
+      },
+      logout: {
+        description: 'Logout of the current session',
+      },
+      who: {
+        description: 'Show who is logged on',
+      },
+      cat: {
+        description: 'Display file contents',
+        usage: 'cat <file>',
+      },
+      mkdir: {
+        description: 'Create directory',
+        usage: 'mkdir <name>',
+      },
+      touch: {
+        description: 'Create file or update timestamp',
+        usage: 'touch <name>',
+      },
+      rm: {
+        description: 'Remove file or directory',
+        usage: 'rm <name>',
+      },
+      cp: {
+        description: 'Copy files',
+        usage: 'cp <source> <dest>',
+      },
+      mv: {
+        description: 'Move (rename) files',
+        usage: 'mv <source> <dest>',
+      },
+      chmod: {
+        description: 'Change file modes (permissions)',
+        usage: 'chmod <mode> <file>',
+      },
+      chown: {
+        description: 'Change file owner and group',
+        usage: 'chown <owner>[:<group>] <file>',
+      },
+      grep: {
+        description: 'Print lines matching a pattern',
+        usage: 'grep <pattern> <file>',
+      },
+      find: {
+        description: 'Search for files in a directory hierarchy',
+        usage: 'find [path] [-name pattern]',
+      },
+      echo: {
+        description: 'Display a line of text',
+        usage: 'echo [text]',
+      },
+      date: {
+        description: 'Print the system date and time',
+      },
+      uptime: {
+        description: 'Tell how long the system has been running',
+      },
+      whoami: {
+        description: 'Print current user',
+      },
+      hostname: {
+        description: 'Print system hostname',
+      },
+      reset: {
+        description: 'Reset filesystem to factory defaults',
+      },
+      exit: {
+        description: 'Exit the current shell session',
+      },
+      su: {
+        description: 'Change user ID or become superuser',
+        usage: 'su [username] [password]',
+      },
+      sudo: {
+        description: 'Execute a command as another user',
+        usage: 'sudo [options] [command]',
+      },
     },
   },
   placeholderApp: {
@@ -844,6 +936,50 @@ export const en: TranslationDict = {
       hardResetWarning: '⚠️ All custom files and folders will be permanently deleted',
       factoryReset: 'Factory Reset',
       deleteEverything: 'Yes, Delete Everything',
+    },
+  },
+  onboarding: {
+    steps: {
+      language: {
+        title: 'Welcome to Aurora',
+        description: 'Select your language to get started',
+      },
+      account: {
+        title: 'Create Your Account',
+        description: 'Set up the primary administrator account',
+      },
+      theme: {
+        title: 'Personalize',
+        description: 'Make it yours',
+      },
+      finishing: {
+        title: 'Setting up...',
+        description: 'Applying configuration',
+      },
+    },
+    account: {
+      fullName: 'Full Name',
+      fullNamePlaceholder: 'Example: John Doe',
+      username: 'Username',
+      password: 'Password',
+      passwordHint: 'Password Hint (Optional)',
+      passwordHintPlaceholder: 'Example: Name of your first pet',
+    },
+    theme: {
+      mode: 'Theme Mode',
+      accentColor: 'Accent Color',
+      darkMode: 'Dark (Neutral)',
+      lightMode: 'Light',
+      comingSoon: 'Coming Soon',
+    },
+    finishing: {
+      title: "You're all set!",
+      subtitle: 'Aurora OS is ready. Redirecting you to the login screen...',
+    },
+    buttons: {
+      next: 'Next',
+      back: 'Back',
+      startUsing: 'Start Using Aurora',
     },
   },
 };

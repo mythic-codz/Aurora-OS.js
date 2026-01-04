@@ -5,7 +5,7 @@ import { cn } from '../ui/utils';
 import { feedback } from '../../services/soundFeedback';
 import { GameScreenLayout } from './GameScreenLayout';
 import { SettingsModal } from './SettingsModal';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 interface MainMenuProps {
     onNewGame: () => void;

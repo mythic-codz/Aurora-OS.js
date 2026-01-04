@@ -4,7 +4,7 @@ import { ResponsiveGrid } from '../ui/ResponsiveGrid';
 import { useAppStorage } from '../../hooks/useAppStorage';
 import { useSessionStorage } from '../../hooks/useSessionStorage';
 import { cn } from '../ui/utils';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 const mockPhotos = Array.from({ length: 24 }, (_, i) => ({
   id: i + 1,

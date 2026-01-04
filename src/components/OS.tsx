@@ -23,7 +23,7 @@ import { getGridConfig, gridToPixel, pixelToGrid, findNextFreeCell, gridPosToKey
 import { feedback } from '../services/soundFeedback';
 import { STORAGE_KEYS } from '../utils/memory';
 import { useWindowManager } from '../hooks/useWindowManager';
-import { useI18n } from '../i18n';
+import { useI18n } from '../i18n/index';
 
 // Load icon positions (supports both pixel and grid formats with migration)
 function loadIconPositions(): Record<string, GridPosition> {

@@ -106,10 +106,48 @@ export const fr: TranslationDict = {
     description: 'Recherchez une commande à exécuter...',
   },
   onboarding: {
-    title: 'Choisissez votre langue',
-    subtitle: 'Vous pourrez la changer plus tard dans Paramètres.',
-    continue: 'Continuer',
-    ok: 'OK',
+    steps: {
+      language: {
+        title: 'Bienvenue sur Aurora',
+        description: 'Sélectionnez votre langue pour commencer',
+      },
+      account: {
+        title: 'Créer votre compte',
+        description: 'Configurer le compte administrateur principal',
+      },
+      theme: {
+        title: 'Personnaliser',
+        description: 'Faites-en le vôtre',
+      },
+      finishing: {
+        title: 'Configuration...',
+        description: 'Application de la configuration',
+      },
+    },
+    account: {
+      fullName: 'Nom complet',
+      fullNamePlaceholder: 'Exemple : Jean Dupont',
+      username: 'Nom d’utilisateur',
+      password: 'Mot de passe',
+      passwordHint: 'Indice de mot de passe (optionnel)',
+      passwordHintPlaceholder: 'Exemple : Nom de votre premier animal',
+    },
+    theme: {
+      mode: 'Mode du thème',
+      accentColor: 'Couleur d’accent',
+      darkMode: 'Sombre (Neutre)',
+      lightMode: 'Clair',
+      comingSoon: 'Bientôt',
+    },
+    finishing: {
+      title: "Vous êtes prêt !",
+      subtitle: 'Aurora OS est prêt. Redirection vers l’écran de connexion...',
+    },
+    buttons: {
+      next: 'Suivant',
+      back: 'Retour',
+      startUsing: 'Commencer à utiliser Aurora',
+    },
   },
   login: {
     softReset: 'Réinitialisation douce',
@@ -338,6 +376,106 @@ export const fr: TranslationDict = {
     menu: {
       newTab: 'Nouvel onglet',
       clearScrollback: 'Effacer le défilement',
+    },
+    help: {
+      availableCommands: 'Commandes disponibles :',
+      usage: 'Utilisation',
+      appLaunchHelp: 'Lancer des applications installées (ex. Finder)',
+    },
+    commands: {
+      help: {
+        description: 'Afficher ce message d’aide',
+      },
+      ls: {
+        description: 'Lister le contenu du répertoire',
+        usage: 'ls [chemin]',
+      },
+      cd: {
+        description: 'Changer de répertoire',
+        usage: 'cd <chemin>',
+      },
+      pwd: {
+        description: 'Afficher le répertoire courant',
+      },
+      clear: {
+        description: 'Effacer l’écran du terminal',
+      },
+      logout: {
+        description: 'Déconnexion de la session actuelle',
+      },
+      who: {
+        description: 'Afficher qui est connecté',
+      },
+      cat: {
+        description: 'Afficher le contenu du fichier',
+        usage: 'cat <fichier>',
+      },
+      mkdir: {
+        description: 'Créer un répertoire',
+        usage: 'mkdir <nom>',
+      },
+      touch: {
+        description: 'Créer un fichier ou mettre à jour l\'horodatage',
+        usage: 'touch <nom>',
+      },
+      rm: {
+        description: 'Supprimer un fichier ou un répertoire',
+        usage: 'rm <nom>',
+      },
+      cp: {
+        description: 'Copier des fichiers',
+        usage: 'cp <source> <destination>',
+      },
+      mv: {
+        description: 'Déplacer (renommer) des fichiers',
+        usage: 'mv <source> <destination>',
+      },
+      chmod: {
+        description: 'Changer les modes de fichier (permissions)',
+        usage: 'chmod <mode> <fichier>',
+      },
+      chown: {
+        description: 'Changer le propriétaire et le groupe du fichier',
+        usage: 'chown <propriétaire>[:<groupe>] <fichier>',
+      },
+      grep: {
+        description: 'Imprimer les lignes correspondant à un motif',
+        usage: 'grep <motif> <fichier>',
+      },
+      find: {
+        description: 'Rechercher des fichiers dans une hiérarchie de répertoires',
+        usage: 'find [chemin] [-name motif]',
+      },
+      echo: {
+        description: 'Afficher une ligne de texte',
+        usage: 'echo [texte]',
+      },
+      date: {
+        description: 'Imprimer la date et l\'heure du système',
+      },
+      uptime: {
+        description: 'Indiquer depuis combien de temps le système fonctionne',
+      },
+      whoami: {
+        description: 'Imprimer l\'utilisateur actuel',
+      },
+      hostname: {
+        description: 'Imprimer le nom d\'hôte du système',
+      },
+      reset: {
+        description: 'Réinitialiser le système de fichiers aux valeurs par défaut',
+      },
+      exit: {
+        description: 'Quitter la session shell actuelle',
+      },
+      su: {
+        description: 'Changer d\'ID utilisateur ou devenir superutilisateur',
+        usage: 'su [utilisateur] [mot de passe]',
+      },
+      sudo: {
+        description: 'Exécuter une commande en tant qu\'autre utilisateur',
+        usage: 'sudo [options] [commande]',
+      },
     },
   },
   placeholderApp: {

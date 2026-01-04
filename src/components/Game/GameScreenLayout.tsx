@@ -6,7 +6,7 @@ import { validateIntegrity } from '../../utils/integrity';
 import { useAppContext } from '../AppContext';
 import { ConnectivityBadge } from '../ui/ConnectivityBadge';
 import background from '../../assets/images/background.png';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 interface GameScreenLayoutProps {
     children: ReactNode;

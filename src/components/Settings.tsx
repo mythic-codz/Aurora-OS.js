@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from './ui/select';
 import { SUPPORTED_LOCALES } from '../i18n/translations';
-import { useI18n } from '../i18n';
+import { useI18n } from '../i18n/index';
 import pkg from '../../package.json';
 import defaultWallpaper from '../assets/images/background.png';
 import orbitWallpaper from '../assets/images/wallpaper-orbit.png';
@@ -189,23 +189,42 @@ export function Settings({ owner }: { owner?: string }) {
               </p>
 
               <div className="max-w-sm">
-                <Select
-                  value={locale}
-                  onValueChange={(val) => {
-                    setLocale(val);
-                  }}
-                >
-                  <SelectTrigger className="bg-black/20 border-white/10 text-white">
-                    <SelectValue placeholder={t('settings.appearance.languagePlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SUPPORTED_LOCALES.map((opt) => (
-                      <SelectItem key={opt.locale} value={opt.locale}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Select
+                    value={locale}
+                    onValueChange={(val) => {
+                      setLocale(val);
+                    }}
+                  >
+                    <SelectTrigger 
+                      className="bg-black/20 border-white/10 text-white hover:bg-white/5 transition-colors"
+                      style={{
+                        '--ring': accentColor
+                      } as React.CSSProperties}
+                    >
+                      <SelectValue placeholder={t('settings.appearance.languagePlaceholder')} />
+                    </SelectTrigger>
+                    <SelectContent 
+                      className="backdrop-blur-xl border-white/10 text-white"
+                      style={{
+                        backgroundColor: 'rgba(28, 28, 30, 0.95)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
+                      }}
+                    >
+                      {SUPPORTED_LOCALES.map((opt) => (
+                        <SelectItem 
+                          key={opt.locale} 
+                          value={opt.locale}
+                          className="focus:bg-white/10 focus:text-white data-[state=checked]:bg-(--active-bg)! data-[state=checked]:text-(--active-text)! cursor-pointer transition-colors"
+                          style={{
+                            '--active-bg': `${accentColor}15`,
+                            '--active-text': accentColor
+                          } as React.CSSProperties}
+                        >
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
               </div>
             </div>
 

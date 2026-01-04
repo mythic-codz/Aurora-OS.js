@@ -9,7 +9,7 @@ import { cn } from '../ui/utils';
 import { AppIcon } from '../ui/AppIcon';
 import { EmptyState } from '../ui/empty-state';
 import { useAppContext } from '../AppContext';
-import { useI18n } from '../../i18n';
+import { useI18n } from '../../i18n/index';
 
 interface AppStoreProps {
     owner?: string;
