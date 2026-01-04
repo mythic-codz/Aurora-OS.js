@@ -40,8 +40,8 @@ export function AppStore({ owner }: AppStoreProps) {
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             apps = apps.filter(app =>
-                app.name.toLowerCase().includes(query) ||
-                app.description.toLowerCase().includes(query)
+                (app.nameKey ? t(app.nameKey) : app.name).toLowerCase().includes(query) ||
+                (app.descriptionKey ? t(app.descriptionKey) : app.description).toLowerCase().includes(query)
             );
         }
 
@@ -107,6 +107,8 @@ export function AppStore({ owner }: AppStoreProps) {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filteredApps.map((app) => {
                                 const isInstalled = installedApps.has(app.id);
+                                const displayName = app.nameKey ? t(app.nameKey) : app.name;
+                                const displayDescription = app.descriptionKey ? t(app.descriptionKey) : app.description;
 
                                 return (
                                     <div
@@ -117,13 +119,13 @@ export function AppStore({ owner }: AppStoreProps) {
                                         <div className="flex items-start gap-4 mb-3">
                                             <AppIcon app={app} size="lg" />
                                             <div className="flex-1 min-w-0">
-                                                <h3 className="text-white font-semibold text-lg mb-1">{app.name}</h3>
+                                                <h3 className="text-white font-semibold text-lg mb-1">{displayName}</h3>
                                                 <p className="text-white/60 text-xs uppercase tracking-wide">{t(`appStore.categories.${app.category}`)}</p>
                                             </div>
                                         </div>
 
                                         {/* Description */}
-                                        <p className="text-white/70 text-sm mb-4 line-clamp-2">{app.description}</p>
+                                        <p className="text-white/70 text-sm mb-4 line-clamp-2">{displayDescription}</p>
 
                                         {/* Install/Uninstall Button */}
                                         <div className="flex items-center gap-2">

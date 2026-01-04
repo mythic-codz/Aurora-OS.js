@@ -155,6 +155,8 @@ function DockComponent({ onOpenApp, onRestoreWindow, onFocusWindow, windows }: D
             const hasWindows = appWindows.length > 0;
             const windowCount = appWindows.length;
 
+            const appName = app.nameKey ? t(app.nameKey) : app.name;
+
 
 
             return (
@@ -165,7 +167,7 @@ function DockComponent({ onOpenApp, onRestoreWindow, onFocusWindow, windows }: D
                 )}
 
                 <motion.button
-                  aria-label={app.name}
+                  aria-label={appName}
                   className="relative group"
                   onMouseEnter={() => setHoveredIndex(index)}
                   onMouseLeave={() => setHoveredIndex(null)}
@@ -212,7 +214,7 @@ function DockComponent({ onOpenApp, onRestoreWindow, onFocusWindow, windows }: D
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0 }}
                     >
-                      {app.name}
+                      {appName}
                       {hasWindows && ` (${windowCount})`}
                     </motion.div>
                   )}

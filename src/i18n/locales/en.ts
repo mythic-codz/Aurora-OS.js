@@ -60,6 +60,21 @@ export const en: TranslationDict = {
     notepad: 'Notepad',
     calendar: 'Calendar',
     appStore: 'App Store',
+    mail: 'Mail',
+  },
+  appDescriptions: {
+    finder: 'File Manager',
+    browser: 'Access the web',
+    mail: 'Read and write emails',
+    appStore: 'Download and manage apps',
+    terminal: 'Command line interface',
+    systemSettings: 'Configure your system',
+    notepad: 'Edit text files',
+    messages: 'Chat with friends',
+    calendar: 'Manage your schedule',
+    photos: 'View and manage photos',
+    music: 'Play your favorite music',
+    devCenter: 'Developer Tools',
   },
   a11y: {
     common: {
