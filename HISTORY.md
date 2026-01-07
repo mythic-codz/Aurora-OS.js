@@ -1,3 +1,48 @@
+## 0.8.1
+
+### Added
+
+- **Mail App**: Added mail app with basic functionality, to be further enhanced by gameplay logic and features in 0.9.x (just like Messages app should be enhanced by gameplay logic and features in 0.9.x).
+- **Browser App**: Vanilla core-websites that can be opened from the browser app. For now only TrustMail produces a result (eg. interoperability with Mail and filsystem).
+- **Translation**: ro-RO (Romanian), de-DE (German), and pt-BR (Portuguese) standard language added.
+
+### Improved
+
+- **Apps Main Menu**: Standardized to be included in [app].tsx files.
+- **System States**: Improved the restart/log-out/shutdown logic.
+- **Apps**: Added user context to apps, so they can access user-specific data (eg. user specific home directory, user specific downloads directory, etc.)
+- **Main Menu**: Added confirmation exit at "shutdown" and a force-save function, but also translation supporrt (because Main Menu will be visible after language selection, too).
+- **Environment**: Improved the synconization between dev. and build modules (TS > Vite > Electron) and added environment variables for development and production (language sync, etc.).
+- **Main Menu**: Responsiveness on really small screens.
+- **Onboarding**: Improved the flow of the memory saving, waiting until the last step to write choices to the memory. This prevents incomplete unboarding by pressing "back" button.
+- **Onboarding**: Added input sanitization and validation.
+
+### Fixed
+
+- **Terminal App**: Fixed issue with terminal app retaining history even after a hard wipe - it should persist only in case of a crash.
+- **Onboarding**: Long language selection list was not scrollable - fixed by adding search too.
+- **Onboarding**: Weird behaviour when typing the name of the user. Now the account name is not autocompleted by default.
+
+## v0.8.0
+
+### Added
+
+- **Onboarding Wizard**: A new "First Run Experience" (OOBE) that guides users through Language selection, Admin Account creation, and personalization.
+- **User Management**: "Users & Groups" settings now support creating, deleting, and editing users (including Admin role toggle).
+- **Admin Privileges**: Strict permission model where only `root` or `admin` group members can manage users.
+- **Localization (i18n)**: Added foundational support for multi-language interfaces (i18next), starting with English, Spanish, and French.
+- **App Store**: Added install feedback with progress bar dependant of app size and (future) installed hardware.
+
+### Improved
+
+- **Storage Architecture**: Standardized system language persistence using `STORAGE_KEYS.LANGUAGE` (survives soft resets).
+- **Build Optimization**: Configured Electron to only bundle necessary locales (`en`) to reduce package size.
+- **Boot Sequence**: Fixed duplicate boot glitch and cleaned up the initial boot flow.
+- **Ghost Directories**: Resolved the issue where `/home/user` was incorrectly created even when that user didn't exist.
+- **Security**: `addUserToGroup` now correctly syncs between user objects and group lists.
+- **Terminal**: Command history and visible output are now preserved while the user is still logged in (saves in case of crash).
+- **Apps**: Apps now show size.
+
 ## v0.7.9
 
 ### Added

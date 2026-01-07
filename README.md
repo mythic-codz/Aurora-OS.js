@@ -1,14 +1,13 @@
 # Aurora OS.js
 
-[![Version](https://img.shields.io/badge/Version-v0.7.9-blue)](https://github.com/mental-os/Aurora-OS.js) ![Roadmap Status](<https://img.shields.io/badge/Roadmap-Stage%200%20(OS%20Foundation)-blue>) [![Build (Main)](<https://img.shields.io/github/actions/workflow/status/mental-os/Aurora-OS.js/ci.yml?branch=main&label=Build%20(Main)&logo=github>)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml) [![Build (Nightly)](<https://img.shields.io/github/actions/workflow/status/mental-os/Aurora-OS.js/ci.yml?branch=nightly&label=Build%20(Nightly)&logo=github>)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml) [![GitHub Pages](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml)
+[![Version](https://img.shields.io/badge/Version-v0.8.1-blue)](https://github.com/mental-os/Aurora-OS.js) ![Roadmap Status](<https://img.shields.io/badge/Roadmap-Stage%200%20(OS%20Foundation)-blue>) [![Build (Main)](<https://img.shields.io/github/actions/workflow/status/mental-os/Aurora-OS.js/ci.yml?branch=main&label=Build%20(Main)&logo=github>)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml) [![Build (Nightly)](<https://img.shields.io/github/actions/workflow/status/mental-os/Aurora-OS.js/ci.yml?branch=nightly&label=Build%20(Nightly)&logo=github>)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/ci.yml) [![GitHub Pages](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml/badge.svg)](https://github.com/mental-os/Aurora-OS.js/actions/workflows/deploy.yml)
 
-![Social media image for Aurora OS.js hacking simulator game project](.github/openGraph.jpg)
+![Social media image for Aurora OS.js hacking simulator game project](.github/openGraph.png)
 
 A hacking game where the operating system is the game.
 
-Aurora OS.js is an experimental, open‑source OS‑simulation / hacking game framework built entirely with modern web technologies: React, Vite, Tailwind, and Electron.
-
-It’s not a finished game — yet. It’s the foundation: a playable, extensible virtual operating system designed to host hacking mechanics, scripting, multiplayer systems, and emergent gameplay.
+Aurora OS.js is an experimental, open‑source OS‑simulation / hacking game framework built entirely with modern web technologies: React, Vite, Tailwind, and Electron.  
+It’s not a finished game, yet. It’s the foundation: a playable, extensible virtual operating system designed to host hacking mechanics, scripting, multiplayer systems, and emergent gameplay.
 
 ## ✨ What exists right now
 
@@ -20,8 +19,6 @@ Even in its current proof‑of‑concept state, Aurora OS already solves the har
 - 🧩 Modular app architecture with context-aware Menu Bar system
 - 📝 Notepad app with syntax highlighting for: .txt, .md, .js, .jsx, .css, .html, .sh, and more
 - 🎛 Window management & desktop UX
-
-This isn’t a mockup — it’s a living system that can already be extended, scripted, and broken.
 
 ## 🧭 Where This Is Going
 
@@ -44,8 +41,7 @@ I’m deeply inspired by hacking and programming‑driven games:
 - [Bitburner](https://github.com/bitburner-official/bitburner-src) — elegant JavaScript sandboxing
 - [else Heart.break()](https://store.steampowered.com/app/400110/Else_HeartBreak/) — unmatched atmosphere and immersion
 
-Each of them nailed something important — and each of them also felt like they stopped just short of broader reach or replayability.
-
+Each of them nailed something important — and each of them also felt like they stopped just short of broader reach or replayability.  
 When I discovered [OS.js](https://github.com/os-js/OS.js), a thought clicked instantly:
 
 > What if the OS itself is the game engine?
@@ -75,7 +71,7 @@ This is the ideal phase to influence direction, architecture, and gameplay syste
 
 ## 🚀 Getting Started
 
-> **Prerequisite**: Node.js 24.0.0+ is required.
+> **Prerequisite**: Node.js 24.0.0+ is required.  
 > **Browser**: Chromium-based browsers (Chrome, Edge, Brave, etc.)
 
 ```bash
@@ -85,29 +81,30 @@ npm run dev
 
 Or use the [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
 
-## Release Notes (v0.7.9)
+## Release Notes (v0.8.1)
 
 ### Added
 
-- **Calendar App**: Core functionality (add, remove, modify events). File-dependent (`~/.config/calendar.json`) to enhance gameplay and hackability.
-- **Documentation**: Added `CONTRIBUTORS.md` and `CONTRIBUTORS.md` references.
+- **Mail App**: Added mail app with basic functionality, to be further enhanced by gameplay logic and features in 0.9.x (just like Messages app should be enhanced by gameplay logic and features in 0.9.x).
+- **Browser App**: Vanilla core-websites that can be opened from the browser app. For now only TrustMail produces a result (eg. interoperability with Mail and filsystem).
+- **Translation**: ro-RO (Romanian), de-DE (German), and pt-BR (Portuguese) standard language added.
 
 ### Improved
 
-- **UI Immersion**: Text is now not selectable by default, except in input areas (text areas, fields).
-- **App Responsive Design**: Sidebar now intelligently switches between condensed and relaxed modes based on window width.
-- **Notifications**: Replaced debugging "toasts" with stylized notifications (success, warning, error).
-- **Text Highlight**: Global text selection now follows the system accent color (including input fields).
-- **Agentic IDE**: Updated `.gitignore` to include `.agent/rules/codeQuality.md` for better context awareness.
+- **Apps Main Menu**: Standardized to be included in [app].tsx files.
+- **System States**: Improved the restart/log-out/shutdown logic.
+- **Apps**: Added user context to apps, so they can access user-specific data (eg. user specific home directory, user specific downloads directory, etc.)
+- **Main Menu**: Added confirmation exit at "shutdown" and a force-save function, but also translation supporrt (because Main Menu will be visible after language selection, too).
+- **Environment**: Improved the synconization between dev. and build modules (TS > Vite > Electron) and added environment variables for development and production (language sync, etc.).
+- **Main Menu**: Responsiveness on really small screens.
+- **Onboarding**: Improved the flow of the memory saving, waiting until the last step to write choices to the memory. This prevents incomplete unboarding by pressing "back" button.
+- **Onboarding**: Added input sanitization and validation.
 
-### Removed
+### Fixed
 
-- **Videos App (placeholder)**: Removed to avoid false impressions; video files are not currently a game world element.
-- **Videos Home Directory**: Cleaned up `~/Videos`.
-
-### Known Issues
-
-- **react-day-picker**: Regressed to 8.10.1 as 9.13.0 caused conflicts with `shadcn` dependencies.
+- **Terminal App**: Fixed issue with terminal app retaining history even after a hard wipe - it should persist only in case of a crash.
+- **Onboarding**: Long language selection list was not scrollable - fixed by adding search too.
+- **Onboarding**: Weird behaviour when typing the name of the user. Now the account name is not autocompleted by default.
 
 ### [View full version history](HISTORY.md)
 

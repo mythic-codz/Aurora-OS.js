@@ -1,6 +1,10 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { STORAGE_KEYS } from '../utils/memory';
+import { SUPPORTED_LOCALES } from '../i18n/translations';
 
 type ThemeMode = 'neutral' | 'shades' | 'contrast';
+
+type AppLocale = string;
 
 interface AppContextType {
   accentColor: string;
@@ -21,6 +25,12 @@ interface AppContextType {
   setDevMode: (enabled: boolean) => void;
   exposeRoot: boolean;
   setExposeRoot: (enabled: boolean) => void;
+
+  // Localization
+  locale: AppLocale;
+  setLocale: (locale: AppLocale) => void;
+  onboardingComplete: boolean;
+  setOnboardingComplete: (complete: boolean) => void;
 
   // Lock user session without logging out
   isLocked: boolean;
@@ -51,6 +61,8 @@ interface UserPreferences {
 interface SystemConfig {
   devMode: boolean;
   exposeRoot: boolean;
+  locale: AppLocale;
+  onboardingComplete: boolean;
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
@@ -63,9 +75,43 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   wallpaper: 'default',
 };
 
+function getBestSupportedLocale(candidate: string | undefined): AppLocale {
+  if (!candidate) return 'en-US';
+
+  // 1. Try exact match (e.g. 'en-US', 'pt-BR')
+  if (SUPPORTED_LOCALES.some(l => l.locale === candidate)) {
+    return candidate;
+  }
+
+  // 2. Try base language match (e.g. 'en-GB' -> 'en-US', 'pt-PT' -> 'pt-BR')
+  const base = candidate.split('-')[0].toLowerCase();
+  const matched = SUPPORTED_LOCALES.find(l => l.locale.split('-')[0].toLowerCase() === base);
+  if (matched) {
+    return matched.locale;
+  }
+
+  // 3. Absolute fallback
+  return 'en-US';
+}
+
+function detectDefaultLocale(): AppLocale {
+  try {
+    // Check for saved language (e.g. from Onboarding recovery)
+    const saved = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
+    if (saved) return getBestSupportedLocale(saved);
+
+    const navLang = typeof navigator !== 'undefined' ? navigator.language : undefined;
+    return getBestSupportedLocale(navLang);
+  } catch {
+    return 'en-US';
+  }
+}
+
 const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   devMode: false,
   exposeRoot: false,
+  locale: detectDefaultLocale(),
+  onboardingComplete: false,
 };
 
 // Helper: Get key for specific user
@@ -152,7 +198,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Destructure for easy access
   const { accentColor, themeMode, blurEnabled, reduceMotion, disableShadows, disableGradients, wallpaper } = preferences;
-  const { devMode, exposeRoot } = systemConfig;
+  const { devMode, exposeRoot, locale, onboardingComplete } = systemConfig;
 
   // Function to switch context to a different user
   const switchUser = useCallback((username: string) => {
@@ -195,6 +241,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Setters for System Config
   const setDevMode = (enabled: boolean) => setSystemConfig(s => ({ ...s, devMode: enabled }));
   const setExposeRoot = (enabled: boolean) => setSystemConfig(s => ({ ...s, exposeRoot: enabled }));
+  const setLocale = useCallback((newLocale: AppLocale) => setSystemConfig(s => ({ ...s, locale: newLocale })), []);
+  const setOnboardingComplete = (complete: boolean) => setSystemConfig(s => ({ ...s, onboardingComplete: complete }));
+
+  // Sync locale from Electron if available and not explicitly stored
+  useEffect(() => {
+    const syncElectronLocale = async () => {
+      if (window.electron?.getLocale) {
+        try {
+          const storedLocale = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
+          if (!storedLocale) {
+            const systemLocale = await window.electron.getLocale();
+            if (systemLocale) {
+              const bestLocale = getBestSupportedLocale(systemLocale);
+              if (bestLocale !== locale) {
+                setLocale(bestLocale);
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to sync locale from Electron:', e);
+        }
+      }
+    };
+    syncElectronLocale();
+  }, [locale, setLocale]);
 
   // Sync accent color to CSS variable for global theming
   useEffect(() => {
@@ -249,6 +320,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setDevMode,
       exposeRoot,
       setExposeRoot,
+      locale,
+      setLocale,
+      onboardingComplete,
+      setOnboardingComplete,
       switchUser,
       activeUser,
       isLocked,

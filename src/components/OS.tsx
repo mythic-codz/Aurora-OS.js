@@ -23,7 +23,9 @@ import { getGridConfig, gridToPixel, pixelToGrid, findNextFreeCell, gridPosToKey
 import { feedback } from '../services/soundFeedback';
 import { STORAGE_KEYS } from '../utils/memory';
 import { useWindowManager } from '../hooks/useWindowManager';
+import { useI18n } from '../i18n/index';
 
+import { Mail } from "@/components/apps/Mail.tsx";
 // Load icon positions (supports both pixel and grid formats with migration)
 function loadIconPositions(): Record<string, GridPosition> {
     try {
@@ -52,6 +54,7 @@ function loadIconPositions(): Record<string, GridPosition> {
 
 export default function OS() {
     const { activeUser } = useAppContext();
+    const { t } = useI18n();
 
     // Track window size for responsive icon positioning
     const [windowSize, setWindowSize] = useState({
@@ -191,6 +194,10 @@ export default function OS() {
                 title = 'Messages';
                 content = <Messages owner={owner} />;
                 break;
+            case 'mail':
+                title = 'Mail';
+                content = <Mail owner={owner} />;
+                break;
             case 'browser':
                 title = 'Browser';
                 content = <Browser owner={owner} />;
@@ -225,7 +232,7 @@ export default function OS() {
                 content = <PlaceholderApp title={title} />;
         }
         return { content, title };
-    }, []); // Dependencies? openWindowRef is stable
+    }, []); // openWindowRef is stable
 
     // Use Window Manager Hook
     const {
@@ -249,7 +256,7 @@ export default function OS() {
 
     const updateIconsPositions = useCallback((updates: Record<string, { x: number; y: number }>) => {
         const config = getGridConfig(window.innerWidth, window.innerHeight);
-        
+
         // 1. Prepare maps
         const newPositionsMap = { ...iconGridPositions };
         const itemsToMoveIntoFolders: { id: string, folderName: string }[] = [];
@@ -257,20 +264,20 @@ export default function OS() {
 
         // 2. First Pass: Check for Folder Drops and calculate initial Grid Targets
         Object.entries(updates).forEach(([id, position]) => {
-             const targetGridPos = pixelToGrid(position.x, position.y, config);
-             const targetCellKey = gridPosToKey(targetGridPos);
+            const targetGridPos = pixelToGrid(position.x, position.y, config);
+            const targetCellKey = gridPosToKey(targetGridPos);
 
-             // Check collision with existing folders (excluding self and other dragged items essentially)
-             // We check against the *entire* current desktopIcons list to find folders.
-             // If we drop ON A FOLDER, we move it.
-             
-             const conflictingIcon = desktopIcons.find(icon => {
+            // Check collision with existing folders (excluding self and other dragged items essentially)
+            // We check against the *entire* current desktopIcons list to find folders.
+            // If we drop ON A FOLDER, we move it.
+
+            const conflictingIcon = desktopIcons.find(icon => {
                 const iconGridPos = iconGridPositions[icon.id];
                 // Must be different ID, and at the target cell
                 return icon.id !== id && iconGridPos && gridPosToKey(iconGridPos) === targetCellKey;
-             });
+            });
 
-             if (conflictingIcon && conflictingIcon.type === 'folder') {
+            if (conflictingIcon && conflictingIcon.type === 'folder') {
                 const targetPixelPos = gridToPixel(iconGridPositions[conflictingIcon.id], config);
                 const targetCenter = { x: targetPixelPos.x + 50, y: targetPixelPos.y + 50 };
                 const dragCenter = { x: position.x + 50, y: position.y + 50 };
@@ -281,16 +288,16 @@ export default function OS() {
                 if (distance < 35) {
                     itemsToMoveIntoFolders.push({ id, folderName: conflictingIcon.name });
                     // Remove from grid map immediately if we are moving it away
-                    delete newPositionsMap[id]; 
+                    delete newPositionsMap[id];
                     return; // Skip grid placement for this item
                 }
-             }
+            }
 
-             // If not moving into folder, it counts as a grid update
-             itemsToUpdateGrid.push({ id, gridPos: targetGridPos });
-             // Temporarily place it in the map for collision checks with *subsequent* items?
-             // Actually we should place them all, then resolving conflicts.
-             newPositionsMap[id] = targetGridPos;
+            // If not moving into folder, it counts as a grid update
+            itemsToUpdateGrid.push({ id, gridPos: targetGridPos });
+            // Temporarily place it in the map for collision checks with *subsequent* items?
+            // Actually we should place them all, then resolving conflicts.
+            newPositionsMap[id] = targetGridPos;
         });
 
         // 3. Process Folder Moves
@@ -304,9 +311,9 @@ export default function OS() {
         // Actually, rearrangeGrid handles shifting *others* out of the way.
         // If we have multiple items, we should apply them sequentially or as a group?
         // Sequential application on top of accumulated state is safest.
-        
+
         let finalPositions = { ...newPositionsMap };
-        
+
         itemsToUpdateGrid.forEach(({ id, gridPos }) => {
             // Apply rearrangement for this single update against the *current accumulated* grid
             // This ensures subsequent items in the batch see the shifted obstacles of previous items.
@@ -348,7 +355,7 @@ export default function OS() {
                     // Inject timestamp to force update and allow Music app to handle playback on mount/update
                     openWindowRef.current('music', { path, timestamp: Date.now() });
                 } else {
-                    toast.error('Music app is not installed. Install it from the App Store.');
+                    toast.error(t('os.toasts.musicNotInstalled'));
                 }
             } else if (isText) {
                 // Check if notepad app is installed by checking /usr/bin
@@ -356,12 +363,12 @@ export default function OS() {
                 if (notepadBinary) {
                     openWindow('notepad', { path });
                 } else {
-                    toast.error('Notepad is not installed. Install it from the App Store.');
+                    toast.error(t('os.toasts.notepadNotInstalled'));
                 }
             }
         }
 
-    }, [desktopIcons, resolvePath, getNodeAtPath, openWindow]);
+    }, [desktopIcons, resolvePath, getNodeAtPath, openWindow, t]);
 
     const focusedWindowId = useMemo(() => {
         if (windows.length === 0) return null;

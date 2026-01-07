@@ -31,6 +31,7 @@ import { useElementSize } from '../hooks/useElementSize';
 import { FileIcon } from './ui/FileIcon';
 import { cn } from './ui/utils';
 import { feedback } from '../services/soundFeedback';
+import { useI18n } from '../i18n/index';
 
 interface BreadcrumbPillProps {
   name: string;
@@ -92,6 +93,7 @@ function BreadcrumbPill({ name, isLast, accentColor, onClick, onDrop }: Breadcru
 
 export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: string; onOpenApp?: (id: string, args?: any, owner?: string) => void, owner?: string }) {
   const { accentColor, activeUser: desktopUser } = useAppContext();
+  const { t } = useI18n();
   const activeUser = owner || desktopUser;
   useMusic();
   // Drag and Drop Logic
@@ -154,11 +156,11 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
       const userObj = users.find(u => u.username === activeUser);
       if (userObj) {
         if (!checkPermissions(node, userObj, 'read')) {
-          toast.error(`Permission denied: ${node.name}`);
+          toast.error(t('fileManager.toasts.permissionDenied', { name: node.name }));
           return;
         }
         if (!checkPermissions(node, userObj, 'execute')) {
-          toast.error(`Permission denied: ${node.name}`);
+          toast.error(t('fileManager.toasts.permissionDenied', { name: node.name }));
           return;
         }
       }
@@ -173,7 +175,7 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
     setHistoryIndex(prev => prev + 1);
     setCurrentPath(path);
     feedback.folder();
-  }, [historyIndex, getNodeAtPath, users, activeUser]);
+  }, [historyIndex, getNodeAtPath, users, activeUser, t]);
 
   // Handle item double-click
   const handleItemDoubleClick = useCallback((item: FileNode) => {
@@ -194,7 +196,7 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
           // Delegate playback to App via initialPath/data (gated by local logic)
           if (onOpenApp) onOpenApp('music', { path: fullPath, timestamp: Date.now() }, activeUser);
         } else {
-          toast.error('Music app is not installed. Install it from the App Store.');
+          toast.error(t('fileManager.toasts.musicNotInstalled'));
         }
       } else if (isText) {
         // Check if notepad app is installed by checking /usr/bin
@@ -204,11 +206,11 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
           const fullPath = resolvePath(rawPath, activeUser);
           if (onOpenApp) onOpenApp('notepad', { path: fullPath }, activeUser);
         } else {
-          toast.error('Notepad is not installed. Install it from the App Store.');
+          toast.error(t('fileManager.toasts.notepadNotInstalled'));
         }
       }
     }
-  }, [currentPath, navigateTo, onOpenApp, activeUser, getNodeAtPath, resolvePath]);
+  }, [currentPath, navigateTo, onOpenApp, activeUser, getNodeAtPath, resolvePath, t]);
 
   // Go back in history
   const goBack = useCallback(() => {
@@ -231,39 +233,39 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
     e.stopPropagation(); // Prevent container click from clearing selection
 
     if (e.metaKey || e.ctrlKey) {
-        // Toggle selection
-        setSelectedItems(prev => {
-            const next = new Set(prev);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
-            return next;
-        });
+      // Toggle selection
+      setSelectedItems(prev => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
     } else if (e.shiftKey) {
-        // Range selection
-        if (selectedItems.size === 0) {
-             setSelectedItems(new Set([id]));
-             return;
-        }
-        
-        // Find last selected item (or arbitrary one)
-        const lastId = Array.from(selectedItems).pop();
-        if (!lastId) return;
+      // Range selection
+      if (selectedItems.size === 0) {
+        setSelectedItems(new Set([id]));
+        return;
+      }
 
-        const lastIndex = items.findIndex(i => i.id === lastId);
-        const currentIndex = items.findIndex(i => i.id === id);
-        
-        if (lastIndex === -1 || currentIndex === -1) return;
+      // Find last selected item (or arbitrary one)
+      const lastId = Array.from(selectedItems).pop();
+      if (!lastId) return;
 
-        const start = Math.min(lastIndex, currentIndex);
-        const end = Math.max(lastIndex, currentIndex);
-        
-        const range = items.slice(start, end + 1).map(i => i.id);
-        // Union with existing or replace? Standard is replace + anchor, but union is easier
-        setSelectedItems(new Set([...Array.from(selectedItems), ...range]));
+      const lastIndex = items.findIndex(i => i.id === lastId);
+      const currentIndex = items.findIndex(i => i.id === id);
+
+      if (lastIndex === -1 || currentIndex === -1) return;
+
+      const start = Math.min(lastIndex, currentIndex);
+      const end = Math.max(lastIndex, currentIndex);
+
+      const range = items.slice(start, end + 1).map(i => i.id);
+      // Union with existing or replace? Standard is replace + anchor, but union is easier
+      setSelectedItems(new Set([...Array.from(selectedItems), ...range]));
 
     } else {
-        // Single selection
-        setSelectedItems(new Set([id]));
+      // Single selection
+      setSelectedItems(new Set([id]));
     }
   };
 
@@ -273,10 +275,10 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
     // If dragging an item NOT in selection, select it exclusively
     let itemsToDrag = Array.from(selectedItems);
     if (!selectedItems.has(item.id)) {
-        itemsToDrag = [item.id];
-        setSelectedItems(new Set([item.id]));
+      itemsToDrag = [item.id];
+      setSelectedItems(new Set([item.id]));
     }
-    
+
     e.dataTransfer.setData('application/json', JSON.stringify({
       id: item.id, // Legacy support for single item drops
       ids: itemsToDrag, // NEW: Multi-item payload
@@ -289,9 +291,9 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
   const handleDragOver = useCallback((e: React.DragEvent, item: FileNode) => {
     e.preventDefault(); // allow drop
     if (item.type === 'directory') {
-        // Don't allow dropping onto itself if it's in the selection
-        // But checking IDs in dragOver is hard without parsing data... 
-        // We'll trust the user or handle it in Drop.
+      // Don't allow dropping onto itself if it's in the selection
+      // But checking IDs in dragOver is hard without parsing data... 
+      // We'll trust the user or handle it in Drop.
       e.dataTransfer.dropEffect = 'move';
       setDragTargetId(item.id);
     } else {
@@ -320,61 +322,61 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
       console.log('Drop data:', data);
-      
+
       const idsToMove = data.ids || (data.id ? [data.id] : []);
-      
+
       let movedCount = 0;
       idsToMove.forEach((id: string) => {
-          if (id === targetItem.id) return; // Can't drop on self
-          
-          // Need to find the name for this ID to log/notify? 
-          // We don't have the node object here for external drops easily, but moveNodeById handles it.
-          // BUT we need the name to construct destination path? 
-          // Wait, moveNodeById(id, destPath). destPath includes the filename?
-          // If destPath is a directory, moveNodeById should handle "into"? 
-          // Checking moveNodeById signature... 
-          // implementation usually expects specific path. 
-          // Let's verify moveNodeById behavior. 
-          // If we move /foo/bar.txt to /baz/, the new path is /baz/bar.txt.
-          // The current `moveNodeById` takes (id, newPath).
-          // If `newPath` is a directory, does it automagically append filename?
-          // Looking at usage in original file: 
-          // `const destPath = ... /${targetItem.name}` which is the FOLDER path.
-          // If moveNodeById expects FULL PATH including filename, we have a problem for external IDs where we don't know the name.
-          // Let's assume for now we need the name. `data` payload has `name`. But only for the PRIMARY item.
-          // CRITICAL: We need name for ALL items in multi-drag. 
-          // FIX: The payload should include metadata for all items.
-          
-          // Since I can't easily change the payload to include map of id->name without iterating everything in dragStart...
-          // I will assume for now `moveNodeById` can handle directory targets or I need to fetch names.
-          // Actually, `moveNodeById` inside `useFileSystemMutations` likely updates the parent.
-          
-          // In the original code: 
-          /* 
-            const destPath = currentPath === '/'
-              ? `/${targetItem.name}`
-              : `${currentPath}/${targetItem.name}`;
-             moveNodeById(data.id, destPath, activeUser);
-          */
-          // This implies passing the FOLDER as destPath works? 
-          // If so, great. If acts as "Rename", then we have a bug for moving into folders.
-          // Let's assume it works as "Move Into" based on context.
-          
+        if (id === targetItem.id) return; // Can't drop on self
+
+        // Need to find the name for this ID to log/notify? 
+        // We don't have the node object here for external drops easily, but moveNodeById handles it.
+        // BUT we need the name to construct destination path? 
+        // Wait, moveNodeById(id, destPath). destPath includes the filename?
+        // If destPath is a directory, moveNodeById should handle "into"? 
+        // Checking moveNodeById signature... 
+        // implementation usually expects specific path. 
+        // Let's verify moveNodeById behavior. 
+        // If we move /foo/bar.txt to /baz/, the new path is /baz/bar.txt.
+        // The current `moveNodeById` takes (id, newPath).
+        // If `newPath` is a directory, does it automagically append filename?
+        // Looking at usage in original file: 
+        // `const destPath = ... /${targetItem.name}` which is the FOLDER path.
+        // If moveNodeById expects FULL PATH including filename, we have a problem for external IDs where we don't know the name.
+        // Let's assume for now we need the name. `data` payload has `name`. But only for the PRIMARY item.
+        // CRITICAL: We need name for ALL items in multi-drag. 
+        // FIX: The payload should include metadata for all items.
+
+        // Since I can't easily change the payload to include map of id->name without iterating everything in dragStart...
+        // I will assume for now `moveNodeById` can handle directory targets or I need to fetch names.
+        // Actually, `moveNodeById` inside `useFileSystemMutations` likely updates the parent.
+
+        // In the original code: 
+        /* 
           const destPath = currentPath === '/'
             ? `/${targetItem.name}`
             : `${currentPath}/${targetItem.name}`;
-          
-          moveNodeById(id, destPath, activeUser);
-          movedCount++;
+           moveNodeById(data.id, destPath, activeUser);
+        */
+        // This implies passing the FOLDER as destPath works? 
+        // If so, great. If acts as "Rename", then we have a bug for moving into folders.
+        // Let's assume it works as "Move Into" based on context.
+
+        const destPath = currentPath === '/'
+          ? `/${targetItem.name}`
+          : `${currentPath}/${targetItem.name}`;
+
+        moveNodeById(id, destPath, activeUser);
+        movedCount++;
       });
-      
-      if (movedCount > 0) toast.success(`Moved ${movedCount} items`);
+
+      if (movedCount > 0) toast.success(t('fileManager.toasts.movedItems', { count: movedCount }));
 
     } catch (err) {
       console.error('Failed to parse drag data', err);
-      toast.error('Move failed: Invalid data');
+      toast.error(t('fileManager.toasts.moveFailedInvalidData'));
     }
-  }, [currentPath, moveNodeById, activeUser]);
+  }, [currentPath, moveNodeById, activeUser, t]);
 
   // Sidebar Drop Logic
   const handleSidebarDragOver = useCallback((e: React.DragEvent) => {
@@ -387,17 +389,22 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
       const idsToMove = data.ids || (data.id ? [data.id] : []);
-      
+
       idsToMove.forEach((id: string) => {
-          moveNodeById(id, targetPath, activeUser);
+        moveNodeById(id, targetPath, activeUser);
       });
-      
-      toast.success(`Moved ${idsToMove.length} items to ${targetPath.split('/').pop()}`);
+
+      toast.success(
+        t('fileManager.toasts.movedItemsTo', {
+          count: idsToMove.length,
+          target: targetPath.split('/').pop() || targetPath,
+        })
+      );
     } catch (err) {
       console.error('Failed to drop on sidebar', err);
-      toast.error('Failed to process drop');
+      toast.error(t('fileManager.toasts.failedToProcessDrop'));
     }
-  }, [moveNodeById, activeUser]);
+  }, [moveNodeById, activeUser, t]);
 
   // Helper to create sidebar action props
   const sidebarDropProps = useCallback((path: string) => ({
@@ -413,54 +420,54 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
     return {
       sections: [
         {
-          title: 'Favourites',
+          title: t('fileManager.sidebar.favorites'),
           items: [
             {
               id: 'home',
               icon: Home,
-              label: 'Home',
+              label: t('fileManager.places.home'),
               action: () => navigateTo(homePath),
               ...sidebarDropProps(homePath)
             },
             {
               id: 'desktop',
               icon: Monitor,
-              label: 'Desktop',
+              label: t('fileManager.places.desktop'),
               action: () => navigateTo(`${homePath}/Desktop`),
               ...sidebarDropProps(`${homePath}/Desktop`)
             },
             {
               id: 'documents',
               icon: FileText,
-              label: 'Documents',
+              label: t('fileManager.places.documents'),
               action: () => navigateTo(`${homePath}/Documents`),
               ...sidebarDropProps(`${homePath}/Documents`)
             },
             {
               id: 'downloads',
               icon: Download,
-              label: 'Downloads',
+              label: t('fileManager.places.downloads'),
               action: () => navigateTo(`${homePath}/Downloads`),
               ...sidebarDropProps(`${homePath}/Downloads`)
             },
             {
               id: 'pictures',
               icon: Image,
-              label: 'Pictures',
+              label: t('fileManager.places.pictures'),
               action: () => navigateTo(`${homePath}/Pictures`),
               ...sidebarDropProps(`${homePath}/Pictures`)
             },
             {
               id: 'music',
               icon: Music,
-              label: 'Music',
+              label: t('fileManager.places.music'),
               action: () => navigateTo(`${homePath}/Music`),
               ...sidebarDropProps(`${homePath}/Music`)
             },
           ]
         },
         {
-          title: 'System',
+          title: t('fileManager.sidebar.system'),
           items: [
             {
               id: 'root',
@@ -486,12 +493,12 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
           ]
         },
         {
-          title: 'Locations',
+          title: t('fileManager.sidebar.locations'),
           items: [
             {
               id: 'trash',
               icon: isTrashEmpty ? Trash : Trash2,
-              label: 'Trash',
+              label: t('fileManager.places.trash'),
               action: () => navigateTo(`${homePath}/.Trash`),
               ...sidebarDropProps(`${homePath}/.Trash`)
             },
@@ -499,7 +506,7 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
         },
       ]
     };
-  }, [homePath, navigateTo, sidebarDropProps, getNodeAtPath, activeUser]);
+  }, [homePath, navigateTo, sidebarDropProps, getNodeAtPath, activeUser, t]);
 
   const toolbar = (
     <div className="flex items-center w-full gap-2 px-0">
@@ -525,20 +532,20 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
         <button
           onClick={() => {
             if (selectedItems.size > 0) {
-                selectedItems.forEach(id => {
-                   const item = items.find(i => i.id === id);
-                   if (item) {
-                       const fullPath = currentPath === '/' ? `/${item.name}` : `${currentPath}/${item.name}`;
-                        moveToTrash(fullPath, activeUser);
-                   }
-                });
-                setSelectedItems(new Set());
-                toast.success(`Moved ${selectedItems.size} items to Trash`);
+              selectedItems.forEach(id => {
+                const item = items.find(i => i.id === id);
+                if (item) {
+                  const fullPath = currentPath === '/' ? `/${item.name}` : `${currentPath}/${item.name}`;
+                  moveToTrash(fullPath, activeUser);
+                }
+              });
+              setSelectedItems(new Set());
+              toast.success(t('fileManager.toasts.movedItemsToTrash', { count: selectedItems.size }));
             }
           }}
           disabled={selectedItems.size === 0}
           className={`p-1.5 rounded-md transition-colors ${selectedItems.size === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-red-500/20 text-red-400'}`}
-          title="Move to Trash"
+          title={t('fileManager.actions.moveToTrash')}
         >
           <Trash2 className="w-4 h-4 text-white/50" />
         </button>
@@ -603,7 +610,7 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
                 cumulativePath += `/${segment}`;
                 const isLast = index === visibleSegments.length - 1;
                 const path = cumulativePath; // Close over value
-                const displayName = segment === '.Trash' ? 'Trash' : segment;
+                const displayName = segment;
 
                 return (
                   <BreadcrumbPill
@@ -672,17 +679,17 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
       const idsToMove = data.ids || (data.id ? [data.id] : []);
-      
+
       let movedCount = 0;
       idsToMove.forEach((id: string) => {
-          moveNodeById(id, currentPath, activeUser);
-          movedCount++;
+        moveNodeById(id, currentPath, activeUser);
+        movedCount++;
       });
-      if (movedCount > 0) toast.success(`Moved ${movedCount} items`);
+      if (movedCount > 0) toast.success(t('fileManager.toasts.movedItems', { count: movedCount }));
     } catch (err) {
       console.error('Failed to handle container drop', err);
     }
-  }, [moveNodeById, currentPath, activeUser]);
+  }, [moveNodeById, currentPath, activeUser, t]);
 
   // Selection Box State
   const [selectionBox, setSelectionBox] = useState<{ start: { x: number, y: number }, current: { x: number, y: number } } | null>(null);
@@ -713,40 +720,40 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
         // For simplicity, let's make it replace if no modifier, or union if modifier?
         // Let's go with union for now or clear first? Standard is Clean unless Shift.
         // We'll just Add to current for now to be safe, or Clear triggers on MouseDown.
-        
+
         // Actually MouseDown clears it if not modifier.
-        
+
         // We need to match items against this rect.
         // We need refs to item elements? Or just rough calculation?
         // Grid items are roughly known size/position... but list items are different.
         // Doing this accurately requires measuring DOM nodes.
         // Since we don't have refs to every item easily, we can use "range" logic if in Grid?
         // Or simpler: The DOM nodes exist. We can querySelectorAll button in container?
-        
+
         const buttons = gridRef.current.querySelectorAll('button[draggable="true"]');
         buttons.forEach((btn: Element, index: number) => {
-           // We map DOM index to items index (should match 1:1 if sorted same)
-           const item = items[index];
-           if (!item) return;
-           
-           const btnRect = (btn as HTMLElement).getBoundingClientRect();
-           // Convert btn rect to container relative
-           const btnLeft = btnRect.left - containerRect.left + scrollLeft;
-           const btnTop = btnRect.top - containerRect.top + scrollTop;
-           const btnRight = btnLeft + btnRect.width;
-           const btnBottom = btnTop + btnRect.height;
-           
-           // Intersection check
-           if (
-             btnLeft < boxRight &&
-             btnRight > boxLeft &&
-             btnTop < boxBottom &&
-             btnBottom > boxTop
-           ) {
-             newSelection.add(item.id);
-           }
+          // We map DOM index to items index (should match 1:1 if sorted same)
+          const item = items[index];
+          if (!item) return;
+
+          const btnRect = (btn as HTMLElement).getBoundingClientRect();
+          // Convert btn rect to container relative
+          const btnLeft = btnRect.left - containerRect.left + scrollLeft;
+          const btnTop = btnRect.top - containerRect.top + scrollTop;
+          const btnRight = btnLeft + btnRect.width;
+          const btnBottom = btnTop + btnRect.height;
+
+          // Intersection check
+          if (
+            btnLeft < boxRight &&
+            btnRight > boxLeft &&
+            btnTop < boxBottom &&
+            btnBottom > boxTop
+          ) {
+            newSelection.add(item.id);
+          }
         });
-        
+
         setSelectedItems(newSelection);
         setSelectionBox(null);
       }
@@ -763,8 +770,8 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
   const content = (
     <div
       ref={(node: HTMLDivElement | null) => {
-          containerRefSetter(node);
-          gridRef.current = node;
+        containerRefSetter(node);
+        gridRef.current = node;
       }}
       className="flex-1 overflow-y-auto p-6 transition-colors duration-200 relative outline-none"
       tabIndex={0} // Allow focus for keyboard events
@@ -779,36 +786,36 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
         // Deselect if clicking on background (not on a button)
         const target = e.target as HTMLElement;
         if (!target.closest('button')) {
-            if (!e.shiftKey && !e.metaKey && !e.ctrlKey) {
-                setSelectedItems(new Set());
-            }
-            // Start Selection Box
-            setSelectionBox({
-                 start: { x: e.clientX, y: e.clientY },
-                 current: { x: e.clientX, y: e.clientY }
-            });
+          if (!e.shiftKey && !e.metaKey && !e.ctrlKey) {
+            setSelectedItems(new Set());
+          }
+          // Start Selection Box
+          setSelectionBox({
+            start: { x: e.clientX, y: e.clientY },
+            current: { x: e.clientX, y: e.clientY }
+          });
         }
       }}
     >
       {/* Selection Box Overlay */}
       {selectionBox && gridRef.current && (
-           (() => {
-               const containerRect = gridRef.current!.getBoundingClientRect();
-               const scrollLeft = gridRef.current!.scrollLeft;
-               const scrollTop = gridRef.current!.scrollTop;
-               
-               const left = Math.min(selectionBox.start.x, selectionBox.current.x) - containerRect.left + scrollLeft;
-               const top = Math.min(selectionBox.start.y, selectionBox.current.y) - containerRect.top + scrollTop;
-               const width = Math.abs(selectionBox.current.x - selectionBox.start.x);
-               const height = Math.abs(selectionBox.current.y - selectionBox.start.y);
-               
-               return (
-                <div
-                    className="absolute border border-blue-400/50 bg-blue-500/20 z-50 pointer-events-none"
-                    style={{ left, top, width, height }}
-                />
-               );
-           })()
+        (() => {
+          const containerRect = gridRef.current!.getBoundingClientRect();
+          const scrollLeft = gridRef.current!.scrollLeft;
+          const scrollTop = gridRef.current!.scrollTop;
+
+          const left = Math.min(selectionBox.start.x, selectionBox.current.x) - containerRect.left + scrollLeft;
+          const top = Math.min(selectionBox.start.y, selectionBox.current.y) - containerRect.top + scrollTop;
+          const width = Math.abs(selectionBox.current.x - selectionBox.start.x);
+          const height = Math.abs(selectionBox.current.y - selectionBox.start.y);
+
+          return (
+            <div
+              className="absolute border border-blue-400/50 bg-blue-500/20 z-50 pointer-events-none"
+              style={{ left, top, width, height }}
+            />
+          );
+        })()
       )}
 
       {items.length === 0 ? (
@@ -872,8 +879,8 @@ export function FileManager({ initialPath, onOpenApp, owner }: { initialPath?: s
               </div>
               <div className="text-xs text-white/40 shrink-0 pointer-events-none">
                 {item.type === 'directory'
-                  ? `${item.children?.length || 0} items`
-                  : item.size ? `${item.size} bytes` : ''}
+                  ? t('fileManager.details.items', { count: item.children?.length || 0 })
+                  : item.size ? t('fileManager.details.bytes', { count: item.size }) : ''}
               </div>
               {item.permissions && !isMobile && (
                 <div className="text-xs text-white/50 font-mono shrink-0 whitespace-nowrap text-right min-w-[90px] pointer-events-none">
@@ -896,28 +903,28 @@ export const finderMenuConfig: AppMenuConfig = {
   menus: ['File', 'Edit', 'View', 'Go', 'Window', 'Help'],
   items: {
     'File': [
-      { label: 'New Window', shortcut: '⌘N', action: 'new-window' },
-      { label: 'New Folder', shortcut: '⇧⌘N', action: 'new-folder' },
+      { labelKey: 'menubar.items.newWindow', shortcut: '⌘N', action: 'new-window' },
+      { labelKey: 'menubar.items.newFolder', shortcut: '⇧⌘N', action: 'new-folder' },
       { type: 'separator' },
-      { label: 'Close Window', shortcut: '⌘W', action: 'close-window' }
+      { labelKey: 'menubar.items.closeWindow', shortcut: '⌘W', action: 'close-window' }
     ],
     'Edit': [
-      { label: 'Undo', shortcut: '⌘Z', action: 'undo' },
-      { label: 'Redo', shortcut: '⇧⌘Z', action: 'redo' },
+      { labelKey: 'menubar.items.undo', shortcut: '⌘Z', action: 'undo' },
+      { labelKey: 'menubar.items.redo', shortcut: '⇧⌘Z', action: 'redo' },
       { type: 'separator' },
-      { label: 'Cut', shortcut: '⌘X', action: 'cut' },
-      { label: 'Copy', shortcut: '⌘C', action: 'copy' },
-      { label: 'Paste', shortcut: '⌘V', action: 'paste' },
-      { label: 'Select All', shortcut: '⌘A', action: 'select-all' }
+      { labelKey: 'menubar.items.cut', shortcut: '⌘X', action: 'cut' },
+      { labelKey: 'menubar.items.copy', shortcut: '⌘C', action: 'copy' },
+      { labelKey: 'menubar.items.paste', shortcut: '⌘V', action: 'paste' },
+      { labelKey: 'menubar.items.selectAll', shortcut: '⌘A', action: 'select-all' }
     ],
     'Go': [
-      { label: 'Back', shortcut: '⌘[', action: 'go-back' },
-      { label: 'Forward', shortcut: '⌘]', action: 'go-forward' },
-      { label: 'Enclosing Folder', shortcut: '⌘↑', action: 'go-up' },
+      { labelKey: 'menubar.items.back', shortcut: '⌘[', action: 'go-back' },
+      { labelKey: 'menubar.items.forward', shortcut: '⌘]', action: 'go-forward' },
+      { labelKey: 'menubar.items.enclosingFolder', shortcut: '⌘↑', action: 'go-up' },
       { type: 'separator' },
-      { label: 'Home', shortcut: '⇧⌘H', action: 'go-home' },
-      { label: 'Desktop', shortcut: '⇧⌘D', action: 'go-desktop' },
-      { label: 'Downloads', shortcut: '⌥⌘L', action: 'go-downloads' }
+      { labelKey: 'fileManager.places.home', shortcut: '⇧⌘H', action: 'go-home' },
+      { labelKey: 'fileManager.places.desktop', shortcut: '⇧⌘D', action: 'go-desktop' },
+      { labelKey: 'fileManager.places.downloads', shortcut: '⌥⌘L', action: 'go-downloads' }
     ]
   }
 };

@@ -9,17 +9,20 @@ import { Browser, browserMenuConfig } from '../components/apps/Browser';
 import { Terminal as TerminalApp, terminalMenuConfig } from '../components/apps/Terminal';
 import { DevCenter, devCenterMenuConfig } from '../components/apps/DevCenter';
 import { Notepad, notepadMenuConfig } from '../components/apps/Notepad';
-import { PlaceholderApp } from '../components/apps/PlaceholderApp';
-import { Calendar as CalendarApp } from '../components/apps/Calendar';
+
+import { Calendar as CalendarApp, calendarMenuConfig } from '../components/apps/Calendar';
 import { AppStore as AppStoreComponent, appStoreMenuConfig } from '../components/apps/AppStore';
-import { mailMenuConfig, calendarMenuConfig } from './appMenuConfigs';
+import { Mail as MailApp, mailMenuConfig } from '../components/apps/Mail';
+
 
 import { AppMenuConfig } from '../types';
 
 export interface AppMetadata {
     id: string;
     name: string;
+    nameKey?: string;
     description: string;
+    descriptionKey?: string;
     icon: LucideIcon;
     iconColor: string;           // Gradient class for dock
     iconSolid: string;           // Solid color fallback
@@ -28,6 +31,7 @@ export interface AppMetadata {
     component: ComponentType<any>;
     dockOrder?: number;          // Order in dock (lower = earlier)
     menu?: AppMenuConfig;        // App-specific menu configuration
+    size?: number;               // Size in MB (approximate/simulated)
 }
 
 // Centralized App Registry
@@ -37,6 +41,7 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         id: 'finder',
         name: 'Finder',
         description: 'File Manager',
+        descriptionKey: 'appDescriptions.finder',
         icon: FolderOpen,
         iconColor: 'from-blue-500 to-blue-600',
         iconSolid: '#3b82f6',
@@ -45,11 +50,13 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: FileManager,
         dockOrder: 1,
         menu: finderMenuConfig,
+        size: 25,
     },
     browser: {
         id: 'browser',
         name: 'Browser',
         description: 'Access the web',
+        descriptionKey: 'appDescriptions.browser',
         icon: Globe,
         iconColor: 'from-blue-400 to-indigo-500',
         iconSolid: '#6366f1',
@@ -58,24 +65,28 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: Browser,
         dockOrder: 2,
         menu: browserMenuConfig,
+        size: 150,
     },
     mail: {
         id: 'mail',
         name: 'Mail',
         description: 'Read and write emails',
+        descriptionKey: 'appDescriptions.mail',
         icon: Mail,
         iconColor: 'from-blue-400 to-sky-400',
         iconSolid: '#38bdf8',
         category: 'productivity',
         isCore: true,
-        component: PlaceholderApp,
+        component: MailApp,
         dockOrder: 3,
         menu: mailMenuConfig,
+        size: 85,
     },
     appstore: {
         id: 'appstore',
         name: 'App Store',
         description: 'Download and manage apps',
+        descriptionKey: 'appDescriptions.appStore',
         icon: ShoppingBag,
         iconColor: 'from-sky-500 to-blue-500',
         iconSolid: '#0ea5e9',
@@ -84,11 +95,13 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: AppStoreComponent,
         dockOrder: 4,
         menu: appStoreMenuConfig,
+        size: 40,
     },
     terminal: {
         id: 'terminal',
         name: 'Terminal',
         description: 'Command line interface',
+        descriptionKey: 'appDescriptions.terminal',
         icon: Terminal,
         iconColor: 'from-gray-700 to-gray-800',
         iconSolid: '#374151',
@@ -97,11 +110,13 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: TerminalApp,
         dockOrder: 9,
         menu: terminalMenuConfig,
+        size: 12,
     },
     settings: {
         id: 'settings',
         name: 'System Settings',
         description: 'Configure your system',
+        descriptionKey: 'appDescriptions.systemSettings',
         icon: Settings,
         iconColor: 'from-slate-500 to-zinc-600',
         iconSolid: '#71717a',
@@ -110,6 +125,7 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: SettingsApp,
         dockOrder: 10,
         menu: settingsMenuConfig,
+        size: 60,
     },
 
     // Optional Apps (can be installed/uninstalled)
@@ -117,6 +133,7 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         id: 'notepad',
         name: 'Notepad',
         description: 'Edit text files',
+        descriptionKey: 'appDescriptions.notepad',
         icon: FileText,
         iconColor: 'from-yellow-400 to-amber-500',
         iconSolid: '#f59e0b',
@@ -125,11 +142,13 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: Notepad,
         dockOrder: 4,
         menu: notepadMenuConfig,
+        size: 5,
     },
     messages: {
         id: 'messages',
         name: 'Messages',
         description: 'Chat with friends',
+        descriptionKey: 'appDescriptions.messages',
         icon: MessageSquare,
         iconColor: 'from-green-500 to-emerald-600',
         iconSolid: '#10b981',
@@ -138,11 +157,13 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: Messages,
         dockOrder: 5,
         menu: messagesMenuConfig,
+        size: 45,
     },
     calendar: {
         id: 'calendar',
         name: 'Calendar',
         description: 'Manage your schedule',
+        descriptionKey: 'appDescriptions.calendar',
         icon: Calendar,
         iconColor: 'from-red-500 to-red-600',
         iconSolid: '#ef4444',
@@ -151,11 +172,13 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: CalendarApp,
         dockOrder: 6,
         menu: calendarMenuConfig,
+        size: 20,
     },
     photos: {
         id: 'photos',
         name: 'Photos',
         description: 'View and manage photos',
+        descriptionKey: 'appDescriptions.photos',
         icon: Image,
         iconColor: 'from-pink-500 to-rose-600',
         iconSolid: '#e11d48',
@@ -164,11 +187,13 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: Photos,
         dockOrder: 7,
         menu: photosMenuConfig,
+        size: 240,
     },
     music: {
         id: 'music',
         name: 'Music',
         description: 'Play your favorite music',
+        descriptionKey: 'appDescriptions.music',
         icon: Music,
         iconColor: 'from-purple-500 to-purple-600',
         iconSolid: '#a855f7',
@@ -177,12 +202,14 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: MusicApp,
         dockOrder: 8,
         menu: musicMenuConfig,
+        size: 180,
     },
 
     'dev-center': {
         id: 'dev-center',
         name: 'DevCenter',
         description: 'Developer Tools',
+        descriptionKey: 'appDescriptions.devCenter',
         icon: Code,
         iconColor: 'from-indigo-500 to-purple-600',
         iconSolid: '#6366f1',
@@ -191,6 +218,7 @@ export const APP_REGISTRY: Record<string, AppMetadata> = {
         component: DevCenter,
         dockOrder: 12,
         menu: devCenterMenuConfig,
+        size: 350,
     },
 };
 
@@ -221,3 +249,4 @@ export function getDockApps(installedAppIds: Set<string>): AppMetadata[] {
 export function getAppsByCategory(category: AppMetadata['category']): AppMetadata[] {
     return getAllApps().filter(app => app.category === category);
 }
+
