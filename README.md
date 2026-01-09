@@ -113,6 +113,8 @@ Or use the [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
 - **Internationalization (i18n)**: Complete translation support for **Battery Applet** and **Audio Applet** across 6 languages (en, es, fr, de, pt, ro).
 - **Battery Metrics**: Added detailed battery health, cycle count, temperature, and voltage metrics (visible on supported hardware).
 - **Browser**: Added support for multiple tabs (add, close, switch), and implemented bookmark storage, a toggleable star icon, and a bookmark bar that appears when items are saved.
+- **Terminal**: Added the `history` command to show command history and clear it.
+- **Support for Chinese (simplified) language**
 
 ### Improved
 
@@ -123,7 +125,13 @@ Or use the [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
 - **Menu Bar time**: Clicking the time switches from server time to local time.
 - **Support for small screens**: Improved support for 1366x768 resolution, adapting the apps spawning position and size relative to the screen size.
 - **Music App and applet**: Added seek bar control.
+- **Docker**: is now responsive with an "show all apps" features for over 3 apps in the first section.
 - **Code Quality**: Enhanced linting rules, resolved React hook dependency warnings, and standardized storage key management in `memory.ts`.
+
+### Fixed
+
+- **Tooltip Alignment**: Fixed tooltip alignment for Docker (vertically centered).
+- **Calendar**: Fixed date navigation alignment.
 
 ### [View full version history](HISTORY.md)
 

@@ -2,14 +2,26 @@
 
 ### Added
 
+- **Gamified Resource Monitor**: Implemented a global RAM monitoring system that simulates resource usage based on active/inactive user sessions, open windows, and background throttling.
+- **Memory Applet**: Added a new applet that displays memory usage and provides a way to see memory usage in real-time.
+- **Debugging Tools**: Exposed `window.aurora.checkRamUsage()` for real-time resource analysis in the console.
 - **Internationalization (i18n)**: Complete translation support for **Battery Applet** and **Audio Applet** across 6 languages (en, es, fr, de, pt, ro).
 - **Battery Metrics**: Added detailed battery health, cycle count, temperature, and voltage metrics (visible on supported hardware).
+- **Browser**: Added support for multiple tabs (add, close, switch), and implemented bookmark storage, a toggleable star icon, and a bookmark bar that appears when items are saved.
+- **Terminal**: Added the `history` command to show command history and clear it.
+- **Support for Chinese (simplified) language**
 
 ### Improved
 
+- **Realistic App Resources**: Recalibrated all applications with "heavy" modern resource footprints (e.g., Browser ~450MB, DevCenter ~800MB) for better simulation accuracy.
 - **Desktop Detection**: Battery applet now intelligently hides sensor data on desktop environments while preserving basic status.
 - **Audio Applet**: Refactored to support dynamic localization keys.
-- **Code Quality**: Enhanced linting rules and resolved React hook dependency warnings.
+- **Browser**: Added a simulated progress bar (loads to 80% -> pauses -> finishes) for better UX.
+- **Menu Bar time**: Clicking the time switches from server time to local time.
+- **Support for small screens**: Improved support for 1366x768 resolution, adapting the apps spawning position and size relative to the screen size.
+- **Music App and applet**: Added seek bar control.
+- **Docker**: is now responsive with an "show all apps" features for over 3 apps in the first section.
+- **Code Quality**: Enhanced linting rules, resolved React hook dependency warnings, and standardized storage key management in `memory.ts`.
 
 ## 0.8.1
 

@@ -54,7 +54,7 @@ function AppContent() {
   }, [currentUser]);
 
   return (
-    <>
+    <MusicProvider key={currentUser || 'guest'} owner={currentUser || 'guest'}>
       {/* Render OS if user is logged in (even if locked) */}
       {/* Suspense ensures we can load the chunk while showing BootSequence or nothing */}
       {currentUser && (
@@ -71,7 +71,7 @@ function AppContent() {
           <LoginScreen />
         </div>
       )}
-    </>
+    </MusicProvider>
   );
 }
 
@@ -80,9 +80,7 @@ export default function App() {
     <AppProvider>
       <FileSystemProvider>
         <GameRoot>
-          <MusicProvider>
-            <AppContent />
-          </MusicProvider>
+          <AppContent />
         </GameRoot>
       </FileSystemProvider>
     </AppProvider>

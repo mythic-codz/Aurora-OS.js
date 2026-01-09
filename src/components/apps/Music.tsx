@@ -485,18 +485,17 @@ export function Music({ owner, initialPath, onOpenApp }: MusicProps) {
         >
           {/* Progress Bar (Interactive) */}
           <div 
-            className="absolute top-0 left-0 h-1 bg-white/10 w-full cursor-pointer group/progress hover:h-1.5 transition-all"
-            onClick={(e) => {
-              if (!soundRef.current || duration === 0) return;
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x = e.clientX - rect.left;
-              const percent = x / rect.width;
-              const seekTime = percent * duration;
-              seekTo(seekTime);
-            }}
+            className="absolute top-0 left-0 h-1 bg-white/10 w-full cursor-pointer group/progress hover:h-1.5 transition-all z-50"
             onMouseDown={(e) => {
               if (!soundRef.current || duration === 0) return;
               
+              // Seek immediately on press
+              const rect = e.currentTarget.getBoundingClientRect();
+              const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+              const percent = x / rect.width;
+              const seekTime = percent * duration;
+              seekTo(seekTime);
+
               const handleMouseMove = (moveEvent: MouseEvent) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = Math.max(0, Math.min(moveEvent.clientX - rect.left, rect.width));

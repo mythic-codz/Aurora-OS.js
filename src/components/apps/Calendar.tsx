@@ -723,12 +723,6 @@ export function Calendar({ owner }: CalendarProps) {
               "flex items-center min-w-0 transition-all",
               isSmall ? "w-full justify-between gap-2" : "gap-4 justify-start"
             )}>
-              <h2 className={cn(
-                "font-bold text-white tracking-tight truncate min-w-0 transition-all text-nowrap",
-                isSmall ? "text-xl flex-1" : "text-3xl"
-              )}>
-                {format(currentDate, 'MMMM yyyy', { locale: dateFnsLocale })}
-              </h2>
               <div className="flex items-center bg-black/40 rounded-lg p-0.5 border border-white/10 backdrop-blur-sm shrink-0">
                 <button
                   onClick={() => setCurrentDate(view === 'day' ? subDays(currentDate, 1) : subMonths(currentDate, 1))}
@@ -752,6 +746,13 @@ export function Calendar({ owner }: CalendarProps) {
                   <ChevronRight className={cn(isSmall ? "w-4 h-4" : "w-5 h-5")} />
                 </button>
               </div>
+
+              <h2 className={cn(
+                "font-bold text-white tracking-tight truncate min-w-0 transition-all text-nowrap",
+                isSmall ? "text-xl flex-1 text-right" : "text-3xl"
+              )}>
+                {format(currentDate, 'MMMM yyyy', { locale: dateFnsLocale })}
+              </h2>
             </div>
 
             <div className={cn(

@@ -4,6 +4,10 @@ import { soundManager } from '../services/sound';
 import { useFileSystem } from './FileSystemContext';
 import { useAppContext } from './AppContext';
 import { useSessionStorage } from '../hooks/useSessionStorage';
+import { useI18n } from '../i18n';
+
+
+import { STORAGE_KEYS } from '../utils/memory';
 
 export interface Song {
     id: string;
@@ -51,64 +55,91 @@ export function useMusic() {
     return context;
 }
 
-// Helper to clean metadata
-const getSafeMeta = (filename: string) => {
-    const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
-    const parts = nameWithoutExt.split(' - ');
-    if (parts.length >= 2) {
-        return { artist: parts[0].trim(), title: parts.slice(1).join(' - ').trim(), album: 'Unknown Album' };
-    }
-    return { artist: 'Unknown Artist', title: nameWithoutExt, album: 'Unknown Album' };
-}
 
-const STORAGE_QUEUE = 'aurora-os-app-music-queue';
-const STORAGE_INDEX = 'aurora-os-app-music-index';
-const STORAGE_SEEK = 'aurora-os-app-music-seek';
-const STORAGE_RECENT = 'aurora-os-app-music-recent';
+
+
 
 export function MusicProvider({ children, owner }: { children: React.ReactNode, owner?: string }) {
     const { readFile, getNodeAtPath } = useFileSystem();
     const { activeUser: desktopUser } = useAppContext();
     const activeUser = owner || desktopUser;
+    const { t } = useI18n();
 
+    // Helper to clean metadata
+    const getSafeMeta = useCallback((filename: string) => {
+        const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
+        const parts = nameWithoutExt.split(' - ');
+        if (parts.length >= 2) {
+            return { 
+                artist: parts[0].trim(), 
+                title: parts.slice(1).join(' - ').trim(), 
+                album: t('music.metadata.unknownAlbum') 
+            };
+        }
+        return { 
+            artist: t('music.metadata.unknownArtist'), 
+            title: nameWithoutExt, 
+            album: t('music.metadata.unknownAlbum') 
+        };
+    }, [t]);
+
+    // Standardized Granular Keys (User Preference)
+    // Uses standardized APP_PREFIX from memory.ts
     const getKeys = (user: string) => ({
-        QUEUE: `${STORAGE_QUEUE}-${user}`,
-        INDEX: `${STORAGE_INDEX}-${user}`,
-        SEEK: `${STORAGE_SEEK}-${user}`,
-        RECENT: `${STORAGE_RECENT}-${user}`
+        QUEUE: `${STORAGE_KEYS.APP_PREFIX}music-queue-${user}`,
+        INDEX: `${STORAGE_KEYS.APP_PREFIX}music-index-${user}`,
+        SEEK: `${STORAGE_KEYS.APP_PREFIX}music-seek-${user}`,
+        RECENT: `${STORAGE_KEYS.APP_PREFIX}music-recent-${user}`
     });
 
     const keys = getKeys(activeUser || 'guest');
 
     // 1. Storage & State
+    // 1. Storage & State
     const [playlist, setPlaylistInternal] = useState<Song[]>(() => {
         try {
-            const saved = localStorage.getItem(getKeys(activeUser || 'guest').QUEUE);
-            return saved ? JSON.parse(saved) : [];
-        } catch { return []; }
+            console.log('[MusicContext] Loading playlist from:', keys.QUEUE);
+            const saved = localStorage.getItem(keys.QUEUE);
+            if (saved) {
+                const parsed = JSON.parse(saved) as Song[];
+                console.log(`[MusicContext] Loaded ${parsed.length} songs`);
+
+                // Hydrate immediately (Synchronous during init)
+                return parsed.map(s => {
+                    // Re-read file if URL is stale/blob
+                    if (s.path && (s.url.startsWith('blob:') || !s.url)) {
+                        try {
+                            const content = readFile(s.path, activeUser);
+                            if (content && content !== s.url) {
+                                return { ...s, url: content };
+                            }
+                        } catch { 
+                            /* ignore hydration errors */ 
+                        }
+                    }
+                    return s;
+                });
+            }
+            return [];
+        } catch (e) { 
+            console.warn('[MusicContext] Failed to load playlist', e);
+            return []; 
+        }
     });
-
-
 
     const [currentIndex, setCurrentIndex] = useState(() => {
         try {
-            const saved = localStorage.getItem(getKeys(activeUser || 'guest').INDEX);
+            const saved = localStorage.getItem(keys.INDEX);
             return saved ? parseInt(saved, 10) : -1;
         } catch { return -1; }
     });
 
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isMusicOpen, setMusicOpen] = useState(false);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(0);
     const [recent, setRecent] = useState<Song[]>(() => {
         try {
-            const saved = localStorage.getItem(getKeys(activeUser || 'guest').RECENT);
+            const saved = localStorage.getItem(keys.RECENT);
             if (saved) {
                 const parsed = JSON.parse(saved) as Song[];
-                // Sanitize: 
-                // 1. Remove files from ~/Music (Strict Mode Retroactive Fix)
-                // 2. Deduplicate by ID
+                // Deduplicate and Sanitize
                 const unique = new Map();
                 parsed.forEach(s => {
                     if (!s.path.startsWith('~/Music/') && !unique.has(s.id)) {
@@ -121,47 +152,52 @@ export function MusicProvider({ children, owner }: { children: React.ReactNode, 
         } catch { return []; }
     });
 
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isMusicOpen, setMusicOpen] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+
     const [activeCategory, setActiveCategory] = useSessionStorage<string>('music-active-category', 'songs', activeUser);
 
-    const soundRef = useRef<Howl | null>(null);
-    const [volume, setVolumeState] = useState(soundManager.getVolume('music') * 100);
-
-    // 2. Persistence & Validation
-    useEffect(() => {
-        localStorage.setItem(keys.QUEUE, JSON.stringify(playlist));
-    }, [playlist, keys.QUEUE]);
-
-    useEffect(() => {
-        localStorage.setItem(keys.INDEX, currentIndex.toString());
-    }, [currentIndex, keys.INDEX]);
-
-    useEffect(() => {
-        localStorage.setItem(keys.RECENT, JSON.stringify(recent));
-    }, [recent, keys.RECENT]);
-
-    // Active Category is now handled by useSessionStorage, no manual effect needed for simple persistence.
-    // However, if we wanted to sync to 'STORAGE_ACTIVE_CATEGORY' (the old key) we could, but we want session behavior.
-    // useSessionStorage manages its own key: 'aurora-session-USER-music-active-category'.
-
-    // 4. Wrap setPlaylist to sync currentIndex (Must be AFTER currentIndex/isPlaying definition)
+    // Wrap setPlaylist to allow callbacks to work expectedly
     const setPlaylist: React.Dispatch<React.SetStateAction<Song[]>> = useCallback((value) => {
         setPlaylistInternal(prev => {
             const newPlaylist = typeof value === 'function' ? value(prev) : value;
-            // Removed automatic index sync logic as it interferes with atomic updates from playSong
-            // playSong handles index updates explicitly.
             return newPlaylist;
         });
     }, []);
 
-    // Validation removed to preserve history of ad-hoc/offline files.
-    // Handles invalid files gracefully at playback time.
-    /*
-    useEffect(() => {
-        const validate = (list: Song[]) => list.filter( // ... );
-    }, [...]);
-    */
+    const soundRef = useRef<Howl | null>(null);
+    const [volume, setVolumeState] = useState(soundManager.getVolume('music') * 100);
 
-    // Volume Sync
+    // 2. Persistence (Smart - only save if data exists, else clean up)
+    useEffect(() => {
+        if (playlist.length > 0) {
+            localStorage.setItem(keys.QUEUE, JSON.stringify(playlist));
+        } else {
+            // Only remove if explicitly empty AND we previously had data/keys?
+            // Safer: Just remove. If initialization failed, we returned [], so we remove.
+            // This is the danger zone. But if hydration fixes the blobs, we are good.
+            localStorage.removeItem(keys.QUEUE);
+        }
+    }, [playlist, keys.QUEUE]);
+
+    useEffect(() => {
+        if (currentIndex !== -1) {
+            localStorage.setItem(keys.INDEX, currentIndex.toString());
+        } else {
+            localStorage.removeItem(keys.INDEX);
+        }
+    }, [currentIndex, keys.INDEX]);
+
+    useEffect(() => {
+        if (recent.length > 0) {
+            localStorage.setItem(keys.RECENT, JSON.stringify(recent));
+        } else {
+            localStorage.removeItem(keys.RECENT);
+        }
+    }, [recent, keys.RECENT]);
+
     useEffect(() => {
         const unsubscribe = soundManager.subscribe(() => {
             const newVol = soundManager.getVolume('music') * 100;
@@ -216,8 +252,10 @@ export function MusicProvider({ children, owner }: { children: React.ReactNode, 
             soundRef.current.pause();
             setIsPlaying(false);
             const seek = soundRef.current.seek();
-            if (typeof seek === 'number') {
+            if (typeof seek === 'number' && seek > 0) {
                 localStorage.setItem(keys.SEEK, seek.toString());
+            } else {
+                localStorage.removeItem(keys.SEEK);
             }
         }
     }, [keys.SEEK]);
@@ -248,6 +286,7 @@ export function MusicProvider({ children, owner }: { children: React.ReactNode, 
 
                 if (seekTo !== undefined && seekTo > 0) {
                     sound.seek(seekTo);
+                    setCurrentTime(seekTo);
                 }
 
                 setRecent(prev => prev.map(s => {
@@ -342,7 +381,7 @@ export function MusicProvider({ children, owner }: { children: React.ReactNode, 
             playSong(song);
             setActiveCategory('recent');
         }
-    }, [getNodeAtPath, activeUser, readFile, playSong, setActiveCategory]); // playSong includes playSoundImplementation linkage
+    }, [getNodeAtPath, activeUser, readFile, playSong, setActiveCategory, getSafeMeta]); // playSong includes playSoundImplementation linkage
 
 
     const togglePlay = useCallback(() => {
@@ -409,11 +448,55 @@ export function MusicProvider({ children, owner }: { children: React.ReactNode, 
         };
     }, [isPlaying]);
 
+    // Persistence of Seek Position (Periodic + Unload)
+    useEffect(() => {
+        const saveState = () => {
+            // Snapshot Playlist & Index (Safety for Resume System)
+            if (playlist.length > 0) {
+                localStorage.setItem(keys.QUEUE, JSON.stringify(playlist));
+            }
+            if (currentIndex !== -1) {
+                localStorage.setItem(keys.INDEX, currentIndex.toString());
+            }
+
+            // Save current seek if playing
+            if (soundRef.current && soundRef.current.playing()) {
+                const seek = soundRef.current.seek();
+                if (typeof seek === 'number') {
+                    localStorage.setItem(keys.SEEK, seek.toString());
+                }
+            } 
+            // Also save if paused but we have a position
+             else if (soundRef.current) {
+                 const seek = soundRef.current.seek();
+                 if (typeof seek === 'number' && seek > 0) {
+                    localStorage.setItem(keys.SEEK, seek.toString());
+                 }
+            }
+        };
+
+        // Save every 2 seconds to ensure crash recovery isn't too far off
+        const interval = setInterval(saveState, 2000);
+        
+        // Save on unload/hidden (refresh/close tab)
+        const handleUnload = () => saveState();
+        window.addEventListener('beforeunload', handleUnload);
+        window.addEventListener('pagehide', handleUnload);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('beforeunload', handleUnload);
+            window.removeEventListener('pagehide', handleUnload);
+            saveState(); // Cleanup save
+        };
+    }, [keys.SEEK, keys.QUEUE, keys.INDEX, playlist, currentIndex]);
+
     // Restore Session Trigger (On Load)
     useEffect(() => {
         if (currentIndex !== -1 && playlist[currentIndex] && !soundRef.current) {
             const savedSeek = localStorage.getItem(keys.SEEK);
             const seekTo = savedSeek ? parseFloat(savedSeek) : 0;
+            // Seek to > 0 requires playSoundImplementation to handle it
             playSoundImplementation(playlist[currentIndex], false, seekTo);
         }
     }, [currentIndex, playlist, playSoundImplementation, keys.SEEK]);

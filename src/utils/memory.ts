@@ -100,25 +100,15 @@ export function softReset(): void {
     console.log(`Soft reset: Cleared ${keysToRemove.length} preference keys`);
 }
 
+
 /**
  * Hard Reset - Clears everything including the filesystem
  * This is destructive and will wipe all user data
  */
 export function hardReset(): void {
-    const keysToRemove: string[] = [];
-
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key) {
-            const type = getMemoryType(key);
-            if (type === 'soft' || type === 'hard') {
-                keysToRemove.push(key);
-            }
-        }
-    }
-
-    keysToRemove.forEach(key => localStorage.removeItem(key));
-    console.log(`Hard reset: Cleared ${keysToRemove.length} total keys (including filesystem)`);
+    const count = localStorage.length;
+    localStorage.clear();
+    console.log(`Hard reset: Cleared ${count} total keys (Full Wipe)`);
 }
 
 /**

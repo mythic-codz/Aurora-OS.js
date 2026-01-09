@@ -34,14 +34,23 @@ export function useSessionStorage<T>(key: string, initialState: T, owner?: strin
     });
 
     // Save state
+    // Save state (Smart Persistence: only save if diff from default)
     useEffect(() => {
         if (!activeUser) return;
         try {
-            localStorage.setItem(storageKey, JSON.stringify(state));
+            // Check if state matches initial default
+            // This prevents cluttering storage with default values on mount
+            const isDefault = JSON.stringify(state) === JSON.stringify(initialState);
+            
+            if (isDefault) {
+                localStorage.removeItem(storageKey);
+            } else {
+                localStorage.setItem(storageKey, JSON.stringify(state));
+            }
         } catch (e) {
             console.warn(`Failed to save session state ${key}:`, e);
         }
-    }, [state, storageKey, activeUser, key]);
+    }, [state, storageKey, activeUser, key, initialState]);
 
     // Wrapper for setState
     const setState = useCallback((value: T | ((prev: T) => T)) => {
