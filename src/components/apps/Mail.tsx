@@ -1,16 +1,17 @@
-import { AppTemplate } from "./AppTemplate";
+//Lets slowly move towards alias paths (@) for imports
+import { AppTemplate } from "@/components/apps/AppTemplate";
 import { Inbox, Trash2, Archive, Star, Search, Reply, Forward, Paperclip, Download, Eye, EyeOff, LogOut } from "lucide-react";
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { useAppContext } from "../AppContext";
+import { useAppContext } from "@/components/AppContext";
 import { useSessionStorage } from "@/hooks/useSessionStorage.ts";
-import { cn } from "../ui/utils";
-import { GlassInput } from "../ui/GlassInput";
-import { GlassButton } from "../ui/GlassButton";
+import { cn } from "@/components/ui/utils";
+import { GlassInput } from "@/components/ui/GlassInput";
+import { GlassButton } from "@/components/ui/GlassButton";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useI18n } from "@/i18n";
 import { encodePassword, decodePassword } from "@/utils/authUtils";
-import { useFileSystem } from "../FileSystemContext";
+import { useFileSystem } from "@/components/FileSystemContext";
 import { notify } from "@/services/notifications";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { AppMenuConfig } from "@/types.ts";
@@ -38,26 +39,44 @@ export interface Email {
 }
 
 // --- Security Helpers ---
-const stripHtml = (html: string) => {
-  if (typeof window !== 'undefined') {
-    try {
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      return doc.body.textContent || "";
-    } catch {
-      // Fallback
-    }
-  }
+const stripHtml = (text: string) => {
+  if (!text) return "";
 
-  // Robust recursive fallback to handle nested tags (e.g. <<script>script>)
+  // 1. Remove script and style tags and their contents entirely
+  let result = text
+    .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
+    .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "");
+
+  // 2. Remove common Markdown syntax for a better text preview
+  result = result
+    .replace(/#{1,6}\s+/g, '') // Headers
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Links
+    .replace(/(\*\*|__)(.*?)\1/g, '$2') // Bold
+    .replace(/(\*|_)(.*?)\1/g, '$2') // Italic
+    .replace(/`{3}[\s\S]*?`{3}/g, '') // Code blocks
+    .replace(/`(.+?)`/g, '$1') // Inline code
+    .replace(/^\s*[-*+]\s+/gm, '') // Unordered lists
+    .replace(/^\s*\d+\.\s+/gm, '') // Ordered lists
+    .replace(/^\s*>\s+/gm, ''); // Blockquotes
+
+  // 3. Robust recursive HTML tag removal to handle nested tags
   // This satisfies CodeQL's "Incomplete multi-character sanitization" alert.
-  let result = html;
   let previous;
   do {
     previous = result;
     result = result.replace(/<[^>]*>?/gm, '');
   } while (result !== previous);
 
-  return result;
+  // 4. Decode common HTML entities for a cleaner preview
+  result = result
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+
+  return result.trim();
 };
 
 export function Mail({ owner }: { owner?: string }) {
