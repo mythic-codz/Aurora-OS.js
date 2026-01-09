@@ -194,6 +194,8 @@ export const zh: TranslationDict = {
 			hardReset: '硬重置',
 			warning: '警告',
 			panicWarningBody: '这将把 {{productName}} 恢复为出厂设置。发生故障时可用作紧急按钮。',
+			serverTime: '服务器时间 (UTC)',
+			localTime: '本地时间',
 		},
 		app: {
 			aboutApp: '关于 {{appName}}',
@@ -225,6 +227,27 @@ export const zh: TranslationDict = {
 				title: '下载完成',
 				message: '{{filename}} 已准备好',
 			},
+		},
+	},
+	memory: {
+		title: '内存',
+		used: '已用',
+		pressure: '压力',
+		appMemory: '应用内存',
+		wiredMemory: '联动内存',
+		processName: '进程名称',
+		memory: '内存',
+		swapUsed: '已用交换空间',
+		systemWired: 'Aurora 系统',
+		activeSession: '联动内存 (当前会话)',
+		userSession: '会话: {{user}}',
+		backgroundSession: '休眠内存 (后台)',
+		backgroundProcesses: '{{count}} 个后台进程',
+		instances: '{{count}} 个实例',
+		type: {
+			mainWindow: '主窗口',
+			extraWindow: '额外窗口',
+			extraTabs: '{{count}} 个额外标签页',
 		},
 	},
 	appStore: {
@@ -431,6 +454,10 @@ export const zh: TranslationDict = {
 			sudo: {
 				description: '以其他用户身份执行命令',
 				usage: 'sudo [options] [command]',
+			},
+			history: {
+				description: '显示终端命令历史',
+				usage: 'history [-c] [n]',
 			},
 		},
 	},
