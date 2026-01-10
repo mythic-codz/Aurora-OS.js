@@ -43,6 +43,12 @@
     - **Empty States**: Use `EmptyState` component (`src/components/ui/empty-state.tsx`) for standardizing empty folders, empty search results, and initial app states.
     - **Performance**: High-traffic apps (like Notepad) MUST isolate re-renders by splitting the main editor/content logic into memoized sub-components.
     - **Provider**: Handled via `Sonner` and `SystemToast` component.
+
+6.  **Audio & Metadata System**:
+    - **Howler Core**: All system audio is managed via `soundManager` (`src/services/sound.ts`).
+    - **Realism**: Global mute (`Howler.mute(true)`) silences the system without stopping background processes (e.g., music keep "playing" silently).
+    - **Binary Metadata**: Custom ID3 parser (`src/utils/id3Parser.ts`) extracts professional tags (TIT2, TPE1, TALB) from MP3 files.
+    - **Asset Fetching**: Metadata resolution for local assets uses `fetch` with `Range: bytes=0-512KB` to efficiently read headers without full downloads.
     </architecture_mechanics>
 
 <critical_rules>
@@ -65,6 +71,8 @@
 | `src/components/AppContext.tsx` | **Session** | Theme, Wallpapers, Physical User session. |
 | `src/config/appRegistry.ts` | **Registry** | Installed Apps configuration. |
 | `src/services/notifications.tsx` | **Notifications** | Central service for rich system toasts. |
+| `src/services/sound.ts` | **Sound Manager** | Global audio state and Howler integration. |
+| `src/utils/id3Parser.ts" | **ID3 Parser** | Binary metadata extractor for MP3 files. |
 | `src/components/apps/*` | **Apps** | Individual App components (Notepad, Terminal, etc). |
 </codebase_map>
 

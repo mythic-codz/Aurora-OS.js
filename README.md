@@ -109,6 +109,7 @@ Or use the [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
 
 - **Context menu**: Each APP feeds context menu information the same way they feed Menu Bar items. Some apps may not have/require context menu items.
 - **Finder**: Recursive search functionality aware of the current location.
+- **Music**: Added support for scanning real metadata for files in `/src/assets/sounds` (was relying on filename before).
 
 ### Improved
 
@@ -117,6 +118,7 @@ Or use the [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
   debar is aware of the existing folders in user's home directory.
 - **Finder/Desktop**: Context menu copy/paste functionality.
 - **Finder/Desktop**: Improved "Get Info" diagnostic display with rich, internationalized details (Permissions, Owner, Modified, Size).
+- **All APPs**: Benefit from optimizations, especially in terms of React drawing and memory usage.
 - **Notepad**: Opens with an empty state that propts user to open a file, instead of the clasic "first tab already open" - this gives the posibility to close all tabs.
 - **Translation System**: `.scripts/check-i18n.js` script find automatically missing or extra keys in translations as well as all the files in `/src/i18n/locales`. Aditional workflow for translations is added in [TRANSLATION.md](TRANSLATION.md).
 
@@ -128,6 +130,8 @@ Or use the [GitHub Pages](https://mental-os.github.io/Aurora-OS.js) (LIVE DEMO)
 - **Finder**: Terminal not passing the correct home path to Finder (eg. `su guest` > `finder ~` should open Finder as guest in `/home/guest`, but it opened in `/home/[user]`).
 - **Notepad**: Tabs now remain active when closing and opening Notepad. Unsaved files prevent the app from closing.
 - **Notepad**: Tabs now remember the mode of each tab (edit / preview) to prevent unwanted preview mode where it is not supported.
+- **Music**: Ghost keys issue that appeared even if the app was not installed is now fixed.
+- **Music**: The subsystem of scanning metadata, handleling Sound applet, etc. is tied to the actual launch of the Music app, avoiding issues like not having the Music app installed but still producing effects.
 
 ### [View full version history](HISTORY.md)
 
