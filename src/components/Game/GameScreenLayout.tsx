@@ -127,7 +127,7 @@ export function GameScreenLayout({
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-white/50 text-xs md:text-sm tracking-[0.2em] uppercase text-center">
             <span>Advanced Operating System</span>
             <span className="hidden md:inline">•</span>
-            <span>per aspera ad astra</span>
+            <span>Intuitive • Secure • Powerful</span>
           </div>
         </div>
 

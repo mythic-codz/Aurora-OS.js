@@ -22,14 +22,13 @@ import {
 import { SUPPORTED_LOCALES } from '../i18n/translations';
 import { useI18n } from '../i18n/index';
 import pkg from '../../package.json';
-// New yAMI wallpaper (place your image at public/yami-wallpaper.jpg)
-const yamiWallpaper = '/yami-wallpaper.jpg';
+import defaultWallpaper from '../assets/images/background.png';
 import orbitWallpaper from '../assets/images/wallpaper-orbit.png';
 import meshWallpaper from '../assets/images/wallpaper-mesh.png';
 import dunesWallpaper from '../assets/images/wallpaper-dunes.png';
 
 const WALLPAPERS = [
-  { id: 'default', name: 'yAMI Skyline', src: yamiWallpaper },
+  { id: 'default', name: 'Nebula', src: defaultWallpaper },
   { id: 'orbit', name: 'Orbit', src: orbitWallpaper },
   { id: 'mesh', name: 'Flux', src: meshWallpaper },
   { id: 'dunes', name: 'Midnight Dunes', src: dunesWallpaper },
